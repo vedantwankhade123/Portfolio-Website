@@ -1824,7 +1824,7 @@ export function Portfolio() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 * i + 0.3, duration: 0.5 }}
                                 whileHover={{ y: -4, scale: 1.02 }}
-                                className={`p-4 max-md:p-3 rounded-xl max-md:rounded-lg border backdrop-blur-sm transition-all duration-300 flex flex-col justify-between group
+                                className={`p-4 max-md:p-3 rounded-[15px] border backdrop-blur-sm transition-all duration-300 flex flex-col justify-between group
                                   ${isDark 
                                     ? 'bg-[#1a100a]/30 border-orange-500/10 hover:border-orange-500/30 hover:bg-[#25180f]/40 hover:shadow-[0_0_15px_rgba(255,140,66,0.15)]' 
                                     : 'bg-white/40 border-orange-100 hover:border-orange-200 hover:bg-orange-50/50 hover:shadow-sm'
