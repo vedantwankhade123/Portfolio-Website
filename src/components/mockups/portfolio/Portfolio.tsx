@@ -1966,7 +1966,7 @@ export function Portfolio() {
                             initial="initial"
                             animate="animate"
                             exit="exit"
-                            className="text-[clamp(1.4rem,6.2vw,2.2rem)] md:text-[clamp(5.5rem,8.2vw,11.5rem)] max-md:font-bold md:font-black tracking-tighter m-0 p-0 text-center whitespace-nowrap mt-2 md:mt-3"
+                            className="text-[clamp(1.4rem,6.2vw,2.2rem)] md:text-[clamp(5.5rem,8.2vw,11.5rem)] max-md:font-bold md:font-black tracking-tighter max-md:tracking-wide m-0 p-0 text-center whitespace-nowrap mt-2 md:mt-3"
                             style={{
                                     fontFamily: "'Poppins', sans-serif",
                                     WebkitTextStroke: isMobile
