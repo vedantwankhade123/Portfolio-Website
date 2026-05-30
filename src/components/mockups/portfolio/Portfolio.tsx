@@ -392,6 +392,51 @@ export function Portfolio() {
   const [expandedAchievement, setExpandedAchievement] = useState(-1);
   const [expandedImgIndex, setExpandedImgIndex] = useState(0);
   const [isDesktopMenuOpen, setIsDesktopMenuOpen] = useState(false);
+  const [isTourPlaying, setIsTourPlaying] = useState(false);
+  const [isTourAudioPlaying, setIsTourAudioPlaying] = useState(false);
+  const [showTourTooltip, setShowTourTooltip] = useState(false);
+  const dismissTooltip = () => {
+    setShowTourTooltip(false);
+  };
+
+  const hasShownTooltipRef = useRef(false);
+
+  useEffect(() => {
+    if (!isTourPlaying && !hasShownTooltipRef.current) {
+      const timer = setTimeout(() => {
+        setShowTourTooltip(true);
+        hasShownTooltipRef.current = true;
+      }, 2200); // 2.2s delay to allow initial website entry animations to complete first
+      return () => clearTimeout(timer);
+    }
+  }, [isTourPlaying]);
+
+  const [tooltipTimeLeft, setTooltipTimeLeft] = useState(8);
+
+  useEffect(() => {
+    if (showTourTooltip) {
+      setTooltipTimeLeft(8);
+      const timer = setInterval(() => {
+        setTooltipTimeLeft(prev => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            dismissTooltip();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [showTourTooltip]);
+
+  const [tourTime, setTourTime] = useState(0);
+  const [tourDuration, setTourDuration] = useState(0);
+  const [virtualCursor, setVirtualCursor] = useState({ x: 500, y: 300, visible: false, clicking: false });
+  const tourAudioRef = useRef<HTMLAudioElement | null>(null);
+  const lastTourMilestoneRef = useRef<number>(-1);
+  const [educationScrollEl, setEducationScrollEl] = useState<HTMLDivElement | null>(null);
+  const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null);
   const currentCert = CERTIFICATES_DATA[activeCertIndex] || CERTIFICATES_DATA[0];
 
   // Auto-cycle images in each bento card independently
@@ -423,11 +468,221 @@ export function Portfolio() {
     setMobileAchievementSubIndex(0);
     setActiveAchievementIndex(prev => (prev - 1 + ACHIEVEMENT_IMAGES.length) % ACHIEVEMENT_IMAGES.length);
   };
+
+  // Voice Tour Handlers & Synchronization
+  const startTour = () => {
+    setIsTourPlaying(true);
+    setTourTime(0);
+    setIsTourAudioPlaying(true);
+    setVirtualCursor(prev => ({ ...prev, visible: true }));
+    setShowTourTooltip(false);
+    hasShownTooltipRef.current = true;
+    localStorage.setItem("voice_tour_tooltip_completed", "true");
+    
+    // Stop any current audio guide
+    if (tourAudioRef.current) {
+      tourAudioRef.current.pause();
+    }
+    
+    const audio = new Audio('/Voice-Tour.mp3');
+    audio.currentTime = 0;
+    tourAudioRef.current = audio;
+    
+    audio.addEventListener('timeupdate', () => {
+      setTourTime(audio.currentTime);
+    });
+    audio.addEventListener('durationchange', () => {
+      setTourDuration(audio.duration);
+    });
+    audio.addEventListener('ended', () => {
+      exitTour();
+    });
+    
+    // Play with a small delay so that the bottom player bar has time to slide up and appear first
+    setTimeout(() => {
+      if (tourAudioRef.current === audio) {
+        audio.play().catch(err => {
+          console.warn("Audio play failed, user gesture required:", err);
+        });
+      }
+    }, 400);
+  };
+
+  const toggleTourPlayback = () => {
+    const audio = tourAudioRef.current;
+    if (audio) {
+      if (audio.paused) {
+        audio.play().catch(() => {});
+        setIsTourAudioPlaying(true);
+      } else {
+        audio.pause();
+        setIsTourAudioPlaying(false);
+      }
+    }
+  };
+
+  const exitTour = () => {
+    setIsTourPlaying(false);
+    setIsTourAudioPlaying(false);
+    setVirtualCursor(prev => ({ ...prev, visible: false }));
+    const audio = tourAudioRef.current;
+    if (audio) {
+      audio.pause();
+      tourAudioRef.current = null;
+    }
+    setExpandedAchievement(-1);
+    setIsResumePreviewOpen(false);
+    lastTourMilestoneRef.current = -1;
+  };
+
+  const handleTourScrub = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    setTourTime(time);
+    const audio = tourAudioRef.current;
+    if (audio) {
+      audio.currentTime = time;
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  // 1. Sync section navigation and modal views based on Tour playback time
+  useEffect(() => {
+    if (!isTourPlaying) return;
+
+    if (tourTime < 15) {
+      if (activeSection !== 'home') handleNavClick('home');
+    } else if (tourTime >= 15 && tourTime < 32) {
+      if (activeSection !== 'about') handleNavClick('about');
+    } else if (tourTime >= 32 && tourTime < 48) {
+      if (activeSection !== 'education') handleNavClick('education');
+      if (educationScrollEl) {
+        let milestone = 0;
+        let targetProgress = 0.0;
+        if (tourTime < 36) {
+          milestone = 0;
+          targetProgress = 0.0;
+        } else if (tourTime >= 36 && tourTime < 40) {
+          milestone = 1;
+          targetProgress = 0.37;
+        } else if (tourTime >= 40 && tourTime < 44) {
+          milestone = 2;
+          targetProgress = 0.62;
+        } else {
+          milestone = 3;
+          targetProgress = 1.0;
+        }
+        
+        if (lastTourMilestoneRef.current !== milestone) {
+          lastTourMilestoneRef.current = milestone;
+          const targetScrollTop = targetProgress * (educationScrollEl.scrollHeight - educationScrollEl.clientHeight);
+          educationScrollEl.scrollTop = targetScrollTop;
+        }
+      }
+    } else if (tourTime >= 48 && tourTime < 82) {
+      if (activeSection !== 'projects') handleNavClick('projects');
+      if (tourTime < 65) {
+        if (activeProjectIndex !== 0) setActiveProjectIndex(0);
+      } else {
+        if (activeProjectIndex !== 1) setActiveProjectIndex(1);
+      }
+    } else if (tourTime >= 82 && tourTime < 115) {
+      if (activeSection !== 'achievements') handleNavClick('achievements');
+      
+      // Auto open HackGenX details modal from 88s to 98s
+      if (tourTime >= 88 && tourTime < 98) {
+        if (expandedAchievement !== 0) {
+          setExpandedAchievement(0);
+          setExpandedImgIndex(0);
+        }
+      } 
+      // Auto open MACCS poster details modal from 102s to 112s
+      else if (tourTime >= 102 && tourTime < 112) {
+        if (expandedAchievement !== 2) {
+          setExpandedAchievement(2);
+          setExpandedImgIndex(0);
+        }
+      } else {
+        if (expandedAchievement !== -1) setExpandedAchievement(-1);
+      }
+    } else {
+      if (activeSection !== 'home') handleNavClick('home');
+      if (expandedAchievement !== -1) setExpandedAchievement(-1);
+    }
+  }, [tourTime, isTourPlaying, activeSection, educationScrollEl, activeProjectIndex, expandedAchievement]);
+
+  // 2. Animate the virtual cursor to the active target element coordinates dynamically
+  useEffect(() => {
+    if (!isTourPlaying) {
+      if (virtualCursor.visible) {
+        setVirtualCursor(prev => ({ ...prev, visible: false }));
+      }
+      return;
+    }
+
+    let selector = '';
+    
+    if (tourTime < 3) {
+      selector = '.cursor-pointer span'; // Logo Wankhade
+    } else if (tourTime >= 4 && tourTime < 6) {
+      selector = '#nav-about-btn';
+    } else if (tourTime >= 15 && tourTime < 32) {
+      if (tourTime < 19) selector = '#stat-card-0';
+      else if (tourTime < 22) selector = '#stat-card-1';
+      else if (tourTime < 25) selector = '#stat-card-2';
+      else selector = '#stat-card-3';
+    } else if (tourTime >= 32 && tourTime < 48) {
+      selector = '.scroll-track';
+    } else if (tourTime >= 48 && tourTime < 65) {
+      if (tourTime >= 54 && tourTime < 62) {
+        selector = '#project-live-btn';
+      } else {
+        selector = '#project-title-heading';
+      }
+    } else if (tourTime >= 65 && tourTime < 82) {
+      selector = '#project-title-heading';
+    } else if (tourTime >= 82 && tourTime < 115) {
+      if (tourTime < 88) {
+        selector = '#bento-card-0';
+      } else if (tourTime >= 88 && tourTime < 98) {
+        selector = '.absolute.top-4.right-4'; // Close X in bento expanded view
+      } else if (tourTime >= 98 && tourTime < 102) {
+        selector = '#bento-card-2';
+      } else if (tourTime >= 102 && tourTime < 112) {
+        selector = '.absolute.top-4.right-4'; // Close X in bento expanded view
+      } else {
+        selector = '#bento-card-1';
+      }
+    } else {
+      selector = '#resume-download-btn-floating';
+    }
+
+    if (selector) {
+      const element = document.querySelector(selector);
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        const targetX = rect.left + rect.width / 2;
+        const targetY = rect.top + rect.height / 2;
+        setVirtualCursor(prev => ({
+          ...prev,
+          x: targetX,
+          y: targetY,
+          visible: true,
+        }));
+      } else {
+        setVirtualCursor(prev => ({ ...prev, visible: false }));
+      }
+    } else {
+      setVirtualCursor(prev => ({ ...prev, visible: false }));
+    }
+  }, [tourTime, isTourPlaying, virtualCursor.visible]);
   useEffect(() => {
     visualProgressSpring.set(visualProgress);
   }, [visualProgress, visualProgressSpring]);
-  const [educationScrollEl, setEducationScrollEl] = useState<HTMLDivElement | null>(null);
-  const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null);
   const educationImagesRef = useRef<HTMLImageElement[]>([]);
   const localProgressRef = useRef(0);
   const smoothProgressRef = useRef(0);
@@ -1512,10 +1767,10 @@ export function Portfolio() {
           </motion.div>
 
             <motion.nav 
-              className={`absolute top-0 left-0 right-0 z-50 ${activeSection === 'achievements' && !isMenuOpen ? 'lg:hidden' : ''}`}
-              initial={{ y: -60, opacity: 0 }}
+              className={`absolute top-0 left-0 right-0 z-[60] transition-all duration-500 ${showTourTooltip ? 'opacity-25 blur-[1px] pointer-events-none' : 'opacity-100'} ${activeSection === 'achievements' && !isMenuOpen ? 'lg:hidden' : ''}`}
+              initial={{ y: -10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 1.0, delay: 0.15, ease: [0.16, 1, 0.3, 1] as any }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
             >
               <div className="w-full px-4 md:px-16 h-18 flex items-center justify-between">
                 {/* Left: Logo */}
@@ -1540,6 +1795,7 @@ export function Portfolio() {
                     return (
                       <button
                         key={item}
+                        id={`nav-${id}-btn`}
                         onClick={() => handleNavClick(id)}
                         className={`text-[12px] font-bold transition-all relative group whitespace-nowrap
                           ${isActive 
@@ -1581,10 +1837,10 @@ export function Portfolio() {
                             : 'linear-gradient(135deg, #8B5A3C, #5C3A24)'),
                         color: activeSection === 'education' ? '#FFFFFF' : (isDark ? '#FFFFFF' : '#FFEDD8'),
                         boxShadow: activeSection === 'education'
-                          ? '0 4px 14px rgba(255, 140, 66, 0.3)'
+                          ? '0 4px 10px rgba(0, 0, 0, 0.15)'
                           : (isDark
-                            ? '0 4px 14px rgba(255, 140, 66, 0.3)'
-                            : '0 4px 14px rgba(139, 90, 60, 0.25)'),
+                            ? '0 4px 10px rgba(0, 0, 0, 0.15)'
+                            : '0 4px 10px rgba(0, 0, 0, 0.12)'),
                         border: activeSection === 'education'
                           ? '1px solid rgba(255, 255, 255, 0.2)'
                           : (isDark ? '1px solid rgba(255, 140, 66, 0.3)' : '1px solid rgba(139, 90, 60, 0.2)'),
@@ -1721,10 +1977,108 @@ export function Portfolio() {
                         </motion.h1>
                       </div>
                     </div>
-
                     <div className="relative z-20 w-full max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-12 h-full items-center md:items-end pb-0">
+                      {/* Backdrop overlay for voice tour tooltip highlight */}
+                      <AnimatePresence>
+                        {showTourTooltip && (
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
+                            className="fixed inset-0 bg-black/65 backdrop-blur-[2px] z-[40] pointer-events-auto"
+                            onClick={dismissTooltip}
+                          />
+                        )}
+                      </AnimatePresence>
                       {/* Left: Spacer to keep layout balanced & centered */}
-                      <div className="hidden md:block md:col-span-3 order-1 md:order-1"></div>
+                      {!isTourPlaying ? (
+                        <motion.div
+                          initial={{ opacity: 0, x: -30 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          exit={{ opacity: 0, x: -30 }}
+                          className="hidden md:flex md:col-span-3 order-1 md:order-1 flex-col items-start justify-end pb-14 pl-8 translate-x-[-8px] z-[50] relative"
+                        >
+                          <div className="relative w-fit">
+                            <AnimatePresence>
+                              {showTourTooltip && (
+                                <motion.div
+                                  initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                  transition={{ duration: 0.4, ease: "easeOut" }}
+                                  className="absolute bottom-full left-[32px] mb-3.5 w-[320px] p-4 border bg-white border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.12)] text-[#3D2817] pointer-events-auto z-50 flex flex-col gap-3"
+                                  style={{
+                                    fontFamily: "'Poppins', sans-serif",
+                                    borderRadius: '8px'
+                                  }}
+                                >
+                                  {/* Arrow pointing to the play button */}
+                                  <div className="absolute top-full left-[12px] w-0 h-0 border-x-6 border-x-transparent border-t-6 border-t-white filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.06)]" />
+                                  
+                                  <p className="text-[13px] font-medium leading-relaxed">
+                                    Listen to my portfolio by taking a automated voice tour
+                                  </p>
+                                  <div className="flex gap-2.5 items-center">
+                                    <button
+                                      onClick={() => {
+                                        startTour();
+                                      }}
+                                      className="text-[11px] font-bold text-white bg-[#3D2817] hover:bg-[#5C3A24] transition-all px-3.5 py-2 rounded-md flex items-center gap-1.5 shadow-sm shrink-0 cursor-pointer"
+                                    >
+                                      <Play size={10} fill="currentColor" className="translate-x-px" /> Let's Go
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        dismissTooltip();
+                                      }}
+                                      className="text-[11px] font-semibold text-zinc-600 hover:text-[#3D2817] transition-colors px-2 py-2 cursor-pointer"
+                                    >
+                                      Dismiss ({tooltipTimeLeft}s)
+                                    </button>
+                                  </div>
+                                  
+                                  {/* Auto-dismiss progress bar */}
+                                  <div 
+                                    className="absolute bottom-0 left-0 right-0 h-1.5 bg-zinc-100 overflow-hidden pointer-events-none"
+                                    style={{
+                                      borderBottomLeftRadius: '7px',
+                                      borderBottomRightRadius: '7px'
+                                    }}
+                                  >
+                                    <motion.div
+                                      animate={{ width: `${(tooltipTimeLeft / 8) * 100}%` }}
+                                      transition={{ duration: 1.0, ease: "linear" }}
+                                      className="h-full bg-orange-500"
+                                    />
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                            <motion.button
+                              onClick={startTour}
+                              whileHover={{ scale: 1.05, y: -2 }}
+                              whileTap={{ scale: 0.95 }}
+                              className="flex items-center gap-2.5 pl-2 pr-5 py-2 w-fit rounded-full border shadow-lg transition-all duration-300 pointer-events-auto backdrop-blur-md"
+                              style={{
+                                background: isDark ? 'rgba(15, 8, 0, 0.75)' : 'rgba(255, 245, 236, 0.75)',
+                                borderColor: isDark ? 'rgba(255, 140, 66, 0.3)' : 'rgba(139, 90, 60, 0.3)',
+                                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                                fontFamily: "'Poppins', sans-serif"
+                              }}
+                            >
+                              <div className={`relative flex items-center justify-center w-8 h-8 rounded-full shadow-md shrink-0 ${isDark ? 'bg-orange-500 text-white' : 'bg-orange-600 text-white'}`}>
+                                <Play size={11} fill="currentColor" className="translate-x-0.5" />
+                              </div>
+                              <span className={`text-[13px] font-black tracking-wide ${isDark ? 'text-white' : 'text-[#3D2817]'}`}>
+                                Voice Tour
+                              </span>
+                            </motion.button>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <div className="hidden md:block md:col-span-3 order-1 md:order-1"></div>
+                      )}
 
                       <div className="max-md:absolute max-md:bottom-0 max-md:left-1/2 max-md:-translate-x-1/2 max-md:w-[calc(100vw-20px)] max-md:h-[75vh] max-md:z-10 md:col-span-6 flex items-end justify-center h-full relative order-3 md:order-2">
                         <div className="relative w-full max-md:h-full max-md:w-full h-[65vh] md:h-[85vh] flex items-end justify-center overflow-visible">
@@ -1738,8 +2092,87 @@ export function Portfolio() {
                               className="h-full w-auto object-contain drop-shadow-2xl mx-auto"
                               style={{ imageRendering: 'auto', WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
                             />
+                            
                          </div>
                       </div>
+
+                      {/* Mobile Voice Tour Trigger (placed here to escape z-index stacking context on mobile) */}
+                      {!isTourPlaying && (
+                        <div className="md:hidden absolute bottom-6 left-6 z-[50] w-fit h-fit">
+                          <AnimatePresence>
+                            {showTourTooltip && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                transition={{ duration: 0.4, ease: "easeOut" }}
+                                className="absolute bottom-full left-[28px] mb-3 w-[280px] p-3.5 border bg-white border-zinc-200 shadow-[0_8px_24px_rgba(0,0,0,0.12)] text-[#3D2817] pointer-events-auto z-50 flex flex-col gap-3"
+                                style={{
+                                  fontFamily: "'Poppins', sans-serif",
+                                  borderRadius: '8px'
+                                }}
+                              >
+                                {/* Arrow pointing down to the mobile play button */}
+                                <div className="absolute top-full left-[12px] w-0 h-0 border-x-6 border-x-transparent border-t-6 border-t-white filter drop-shadow-[0_2px_3px_rgba(0,0,0,0.06)]" />
+                                
+                                <p className="text-[12px] font-medium leading-relaxed">
+                                  Listen to my portfolio by taking a automated voice tour
+                                </p>
+                                <div className="flex gap-2.5 items-center">
+                                  <button
+                                    onClick={() => {
+                                      startTour();
+                                    }}
+                                    className="text-[10px] font-bold text-white bg-[#3D2817] hover:bg-[#5C3A24] transition-all px-3 py-1.5 rounded-md flex items-center gap-1 shadow-sm shrink-0 cursor-pointer"
+                                  >
+                                    <Play size={8} fill="currentColor" className="translate-x-px" /> Let's Go
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      dismissTooltip();
+                                    }}
+                                    className="text-[10px] font-semibold text-zinc-600 hover:text-[#3D2817] transition-colors px-2 py-1.5 cursor-pointer"
+                                  >
+                                    Dismiss ({tooltipTimeLeft}s)
+                                  </button>
+                                </div>
+                                
+                                {/* Auto-dismiss progress bar */}
+                                <div 
+                                  className="absolute bottom-0 left-0 right-0 h-1.5 bg-zinc-100 overflow-hidden pointer-events-none"
+                                  style={{
+                                    borderBottomLeftRadius: '7px',
+                                    borderBottomRightRadius: '7px'
+                                  }}
+                                >
+                                  <motion.div
+                                    animate={{ width: `${(tooltipTimeLeft / 8) * 100}%` }}
+                                    transition={{ duration: 1.0, ease: "linear" }}
+                                    className="h-full bg-orange-500"
+                                  />
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                          <motion.button
+                            onClick={startTour}
+                            whileTap={{ scale: 0.95 }}
+                            className="flex items-center gap-2.5 pl-2 pr-5 py-2 rounded-full border shadow-lg w-fit pointer-events-auto backdrop-blur-md"
+                            style={{
+                              background: isDark ? 'rgba(15, 8, 0, 0.75)' : 'rgba(255, 245, 236, 0.75)',
+                              borderColor: isDark ? 'rgba(255, 140, 66, 0.3)' : 'rgba(139, 90, 60, 0.3)',
+                              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                              fontFamily: "'Poppins', sans-serif"
+                            }}
+                          >
+                            <div className={`relative flex items-center justify-center w-8 h-8 rounded-full shadow-md shrink-0 ${isDark ? 'bg-orange-500 text-white' : 'bg-orange-600 text-white'}`}>
+                              <Play size={11} fill="currentColor" className="translate-x-0.5" />
+                            </div>
+                            <span className={`text-[13px] font-black tracking-wide ${isDark ? 'text-white' : 'text-[#3D2817]'}`}>Voice Tour</span>
+                          </motion.button>
+                        </div>
+                      )}
+
 
                       {/* Right: Social Icons */}
                       <motion.div 
@@ -1747,7 +2180,7 @@ export function Portfolio() {
                         initial="initial"
                         animate="animate"
                         exit="exit"
-                        className="max-md:absolute max-md:top-[6px] max-md:bottom-auto max-md:left-1/2 max-md:-translate-x-1/2 max-md:pb-0 max-md:z-30 md:col-span-3 flex flex-col items-center justify-center md:justify-end h-auto md:h-full order-2 md:order-3 pb-8 md:pb-14 md:translate-x-8">
+                        className="max-md:absolute max-md:top-[6px] max-md:bottom-auto max-md:left-1/2 max-md:-translate-x-1/2 max-md:pb-0 max-md:z-[20] md:col-span-3 flex flex-col items-center justify-center md:justify-end h-auto md:h-full order-2 md:order-3 pb-8 md:pb-14 md:translate-x-8">
                         <div className="flex items-center gap-6 md:gap-7">
                           {[
                             { name: 'Linkedin', icon: <Linkedin className="w-5 h-5 md:w-[26px] md:h-[26px]" />, url: "https://www.linkedin.com/in/vedant-wankhade123" },
@@ -1763,7 +2196,7 @@ export function Portfolio() {
                               whileTap={{ scale: 0.95 }}
                               title={social.name}
                               aria-label={`Visit Vedant's ${social.name}`}
-                              className={`transition-colors duration-300 ${isDark ? 'text-[#F3D5B5] hover:text-[#FFEDD8]' : 'text-[#5C3A24] hover:text-[#3D2817]'}`}
+                              className={`transition-colors duration-300 ${isDark ? 'text-[#F3D5B5] hover:text-[#FFEDD8]' : 'text-[#0F0800] hover:text-[#3D2817]'}`}
                             >
                               {social.icon}
                             </motion.a>
@@ -1795,20 +2228,25 @@ export function Portfolio() {
                           className="lg:col-span-5 flex flex-col space-y-6 max-md:space-y-3"
                         >
                           {/* Profile Header Card */}
-                          <div className={`p-6 max-md:p-4 rounded-2xl max-md:rounded-xl border backdrop-blur-md transition-all duration-300
-                            ${isDark 
-                              ? 'bg-[#1e140d]/40 border-orange-500/20 hover:border-orange-500/40 shadow-inner shadow-orange-950/20' 
-                              : 'bg-white/60 border-orange-200 hover:border-orange-300 shadow-sm'
-                            }`}
+                          <motion.div 
+                            whileHover={{ y: -4, scale: 1.015 }}
+                            className={`p-6 max-md:p-4 rounded-2xl max-md:rounded-xl border backdrop-blur-md transition-all duration-500 cursor-default
+                              ${isDark 
+                                ? 'bg-[#1e140d]/40 border-orange-500/20 hover:border-orange-500/35 shadow-[0_15px_35px_rgba(0,0,0,0.45)] hover:shadow-[0_22px_50px_rgba(0,0,0,0.55)]' 
+                                : 'bg-white/60 border-orange-200/80 hover:border-orange-300 shadow-[0_12px_32px_rgba(61,40,23,0.06)] hover:shadow-[0_18px_40px_rgba(61,40,23,0.12)]'
+                              }`}
                           >
                             <div className="flex flex-col justify-center max-md:items-center max-md:text-center">
-                              <h3 className="text-2xl font-black tracking-tight animate-fade-in" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                              <h3 className="text-2xl font-bold tracking-tight animate-fade-in" style={{ fontFamily: "'Poppins', sans-serif" }}>
                                 Vedant Wankhade
                               </h3>
-                              <p className={`text-sm mt-1 ${isDark ? 'text-white/60' : 'text-[#3D2817]/60'}`}>Bachelor's In Computer Science and Engineering</p>
+                              <p className={`text-sm mt-1 ${isDark ? 'text-white/60' : 'text-[#3D2817]/60'}`}>
+                                <span className="hidden md:inline">Bachelor's In Computer Science and Engineering</span>
+                                <span className="md:hidden">B.Tech CSE</span>
+                              </p>
                               <p className="text-xs font-semibold text-[#FF8C42] mt-1.5 tracking-wider">G.H. Raisoni University</p>
                             </div>
-                          </div>
+                          </motion.div>
 
                           {/* Quick Stats Grid */}
                           <div className="grid grid-cols-2 gap-4 max-md:gap-2.5">
@@ -1820,24 +2258,25 @@ export function Portfolio() {
                             ].map((stat, i) => (
                               <motion.div
                                 key={stat.label}
+                                id={`stat-card-${i}`}
                                 initial={{ opacity: 0, y: 15 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.1 * i + 0.3, duration: 0.5 }}
                                 whileHover={{ y: -4, scale: 1.02 }}
-                                className={`p-4 max-md:p-3 rounded-[15px] border backdrop-blur-sm transition-all duration-300 flex flex-col justify-between group
+                                className={`p-4 max-md:p-3 rounded-[15px] border backdrop-blur-sm transition-all duration-500 flex flex-col justify-between group
                                   ${isDark 
-                                    ? 'bg-[#1a100a]/30 border-orange-500/10 hover:border-orange-500/30 hover:bg-[#25180f]/40 hover:shadow-[0_0_15px_rgba(255,140,66,0.15)]' 
-                                    : 'bg-white/40 border-orange-100 hover:border-orange-200 hover:bg-orange-50/50 hover:shadow-sm'
+                                    ? 'bg-[#1a100a]/30 border-orange-500/10 hover:border-orange-500/35 hover:bg-[#25180f]/40 shadow-[0_8px_25px_rgba(0,0,0,0.3)] hover:shadow-[0_15px_30px_rgba(255,140,66,0.08),_0_8px_25px_rgba(0,0,0,0.4)]' 
+                                    : 'bg-white/40 border-orange-100 hover:border-orange-200 hover:bg-orange-50/50 shadow-[0_8px_20px_rgba(61,40,23,0.04)] hover:shadow-[0_15px_30px_rgba(61,40,23,0.09)]'
                                   }`}
                               >
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className={`text-[10px] font-bold normal-case tracking-wider ${isDark ? 'text-white/40' : 'text-[#3D2817]/40'}`}>{stat.label}</span>
+                                  <span className={`text-[10px] font-semibold normal-case tracking-wider ${isDark ? 'text-white/40' : 'text-[#3D2817]/40'}`}>{stat.label}</span>
                                   <div className="p-1.5 max-md:p-1 rounded-lg bg-orange-500/10 group-hover:bg-orange-500/20 transition-colors">
                                     {stat.icon}
                                   </div>
                                 </div>
                                 <div>
-                                  <div className="text-xl md:text-2xl font-black tracking-tight">{stat.value}</div>
+                                  <div className="text-xl md:text-2xl font-bold tracking-tight">{stat.value}</div>
                                   <div className={`text-[10px] mt-0.5 hidden md:block ${isDark ? 'text-white/55' : 'text-[#3D2817]/55'}`}>{stat.desc}</div>
                                 </div>
                               </motion.div>
@@ -1989,7 +2428,7 @@ export function Portfolio() {
                                   whileHover={{ scale: 1.15, y: -2 }}
                                   whileTap={{ scale: 0.95 }}
                                   title={social.name}
-                                  className={`transition-colors duration-300 ${isDark ? 'text-[#F3D5B5] hover:text-[#FFEDD8]' : 'text-[#5C3A24] hover:text-[#3D2817]'}`}
+                                  className={`transition-colors duration-300 ${isDark ? 'text-[#F3D5B5] hover:text-[#FFEDD8]' : 'text-[#0F0800] hover:text-[#3D2817]'}`}
                                 >
                                   {social.icon}
                                 </motion.a>
@@ -2097,11 +2536,14 @@ export function Portfolio() {
                       </div>
                     </div>
                     
-                    {/* The Custom Scrollable Container */}
                     <div 
                       ref={setEducationScrollEl}
                       className="absolute inset-0 overflow-y-auto z-20"
-                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                      style={{ 
+                        scrollbarWidth: 'none', 
+                        msOverflowStyle: 'none',
+                        scrollBehavior: isTourPlaying ? 'smooth' : 'auto'
+                      }}
                     >
                       <div className="scroll-track h-[400vh] w-full pointer-events-none" />
                     </div>
@@ -2420,6 +2862,7 @@ export function Portfolio() {
                             >
                               <motion.h3 
                                 variants={projectItemVariants}
+                                id="project-title-heading"
                                 className={`text-2xl md:text-3xl font-black tracking-tight mb-4 w-full truncate ${isDark ? 'text-[#FFEDD8]' : 'text-[#3D2817]'}`} 
                                 title={PROJECTS[activeProjectIndex].title}
                               >
@@ -2449,6 +2892,7 @@ export function Portfolio() {
                                 ) : (
                                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                       <Button 
+                                        id="project-live-btn"
                                         onClick={() => handleLiveSiteClick(PROJECTS[activeProjectIndex].liveUrl)}
                                         aria-label={`View live site for ${PROJECTS[activeProjectIndex].title}`}
                                         className={`px-6 md:px-8 py-2 md:py-3 max-md:px-4 max-md:py-2.5 rounded-full text-base md:text-lg font-bold flex items-center gap-2 max-md:gap-1.5 shadow-xl transition-all duration-300
@@ -2570,6 +3014,7 @@ export function Portfolio() {
                           return (
                             <motion.div
                               key={`bento-${idx}`}
+                              id={`bento-card-${idx}`}
                               initial={{ opacity: 0, y: 30, scale: 0.95 }}
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               transition={{ duration: 0.5, delay: 0.1 + idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
@@ -2856,11 +3301,17 @@ export function Portfolio() {
         <>
           {/* Top-Left: Hamburger Icon for Nav Links */}
           <motion.button
-            initial={{ opacity: 0, x: -20 }}
+            id="hamburger-btn-floating"
+            initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.3 }}
             onClick={() => setIsDesktopMenuOpen(!isDesktopMenuOpen)}
-            className="fixed top-6 left-6 z-[60] hidden lg:flex items-center justify-center w-12 h-12 rounded-full bg-black/40 border border-white/10 text-white hover:bg-black/60 shadow-lg backdrop-blur-md"
+            className="fixed top-6 left-6 z-[60] hidden lg:flex items-center justify-center w-12 h-12 rounded-full border shadow-lg backdrop-blur-md transition-all duration-300"
+            style={{
+              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.8)',
+              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(61, 40, 23, 0.1)',
+              color: isDark ? '#ffffff' : '#3D2817',
+            }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -2870,7 +3321,9 @@ export function Portfolio() {
           {/* Vertical Navigation options directly below Hamburger Icon */}
           <AnimatePresence>
             {isDesktopMenuOpen && (
-              <div className="fixed top-20 left-6 z-[60] hidden lg:flex flex-col items-start gap-2">
+              <div 
+                className="fixed top-20 left-6 z-[60] hidden lg:flex flex-col items-start gap-1 p-2 transition-all duration-300"
+              >
                 {['Home', 'About', 'Education', 'Skills & certifications', 'Projects', 'Achievements'].map((item, idx) => {
                   const id = item === 'Skills & certifications' ? 'skills' : item.toLowerCase();
                   const isActive = activeSection === id;
@@ -2885,12 +3338,15 @@ export function Portfolio() {
                         handleNavClick(id);
                         setIsDesktopMenuOpen(false);
                       }}
-                      className={`px-4 py-2 text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-start whitespace-nowrap ${
-                        isActive 
-                          ? 'text-orange-400' 
-                          : 'text-white/60 hover:text-white'
+                      className={`px-4 py-1.5 text-xs font-bold transition-all duration-200 hover:scale-105 active:scale-95 flex items-center justify-start whitespace-nowrap rounded-lg w-full ${
+                        isDark ? 'hover:bg-white/10' : 'hover:bg-[#3D2817]/5'
                       }`}
-                      style={{ fontFamily: "'Poppins', sans-serif" }}
+                      style={{
+                        fontFamily: "'Poppins', sans-serif",
+                        color: isActive 
+                          ? '#ff8c42' 
+                          : (isDark ? 'rgba(255, 255, 255, 0.6)' : 'rgba(61, 40, 23, 0.75)')
+                      }}
                     >
                       {item}
                     </motion.button>
@@ -2902,11 +3358,17 @@ export function Portfolio() {
 
           {/* Top-Right: Download Resume Icon */}
           <motion.button
-            initial={{ opacity: 0, x: 20 }}
+            id="resume-download-btn-floating"
+            initial={{ opacity: 0, x: 10 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.3 }}
             onClick={() => setIsResumePreviewOpen(true)}
-            className="fixed top-6 right-6 z-[60] hidden lg:flex items-center justify-center w-12 h-12 rounded-full bg-black/40 border border-white/10 text-white hover:bg-black/60 shadow-lg backdrop-blur-md"
+            className="fixed top-6 right-6 z-[60] hidden lg:flex items-center justify-center w-12 h-12 rounded-full border shadow-lg backdrop-blur-md transition-all duration-300"
+            style={{
+              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.8)',
+              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(61, 40, 23, 0.1)',
+              color: isDark ? '#ffffff' : '#3D2817',
+            }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -2915,11 +3377,17 @@ export function Portfolio() {
 
           {/* Bottom-Right: Theme Toggle Icon */}
           <motion.button
-            initial={{ opacity: 0, y: 20 }}
+            id="theme-toggle-btn-floating"
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.3 }}
             onClick={toggleTheme}
-            className="fixed bottom-6 right-6 z-[60] hidden lg:flex items-center justify-center w-12 h-12 rounded-full bg-black/40 border border-white/10 text-white hover:bg-black/60 shadow-lg backdrop-blur-md"
+            className="fixed bottom-6 right-6 z-[60] hidden lg:flex items-center justify-center w-12 h-12 rounded-full border shadow-lg backdrop-blur-md transition-all duration-300"
+            style={{
+              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.8)',
+              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(61, 40, 23, 0.1)',
+              color: isDark ? '#ffffff' : '#3D2817',
+            }}
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -3269,6 +3737,128 @@ export function Portfolio() {
             >
               <X size={20} />
             </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Floating Tour Controller Bar */}
+      <AnimatePresence>
+        {isTourPlaying && (
+          <motion.div
+            initial={{ opacity: 0, y: 100, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 100, scale: 0.95 }}
+            transition={{
+              type: "spring",
+              stiffness: 120,
+              damping: 18,
+              mass: 0.8
+            }}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] w-[90%] max-w-md px-4 py-2.5 rounded-full border flex items-center gap-3.5 shadow-2xl pointer-events-auto transition-all duration-300 backdrop-blur-md"
+            style={{
+              background: isDark ? 'rgba(15, 8, 0, 0.75)' : 'rgba(255, 245, 236, 0.75)',
+              borderColor: isDark ? 'rgba(255, 140, 66, 0.3)' : 'rgba(139, 90, 60, 0.3)',
+              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+              fontFamily: "'Poppins', sans-serif",
+            }}
+          >
+            {/* Play/Pause Button */}
+            <button
+              onClick={toggleTourPlayback}
+              className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md shrink-0 transition-all ${
+                isDark 
+                  ? 'bg-orange-500 text-white hover:bg-orange-600' 
+                  : 'bg-orange-600 text-white hover:bg-orange-700'
+              }`}
+            >
+              {isTourAudioPlaying ? (
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="14" y="4" width="4" height="16" rx="1" fill="currentColor"/><rect x="6" y="4" width="4" height="16" rx="1" fill="currentColor"/>
+                </svg>
+              ) : (
+                <Play size={12} fill="currentColor" className="translate-x-0.5" />
+              )}
+            </button>
+
+            {/* Progress Slider & Info */}
+            <div className="flex-1 flex flex-col gap-2">
+              <div className={`flex items-center justify-between text-[9px] font-bold tracking-wider ${isDark ? 'text-white' : 'text-[#3D2817]/80'}`}>
+                <span>Voice Tour</span>
+                <span>{formatTime(tourTime)} / {formatTime(tourDuration || 115)}</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max={tourDuration || 115}
+                step="0.1"
+                value={tourTime}
+                onChange={handleTourScrub}
+                className={`w-full h-1 rounded-full cursor-pointer appearance-none outline-none focus:outline-none ${isDark ? 'accent-white bg-white/20' : 'accent-[#3D2817] bg-[#3D2817]/20'}`}
+                style={{
+                  background: isDark
+                    ? `linear-gradient(to right, #ffffff 0%, #ffffff ${(tourTime / (tourDuration || 115)) * 100}%, rgba(255,255,255,0.2) ${(tourTime / (tourDuration || 115)) * 100}%, rgba(255,255,255,0.2) 100%)`
+                    : `linear-gradient(to right, #3D2817 0%, #3D2817 ${(tourTime / (tourDuration || 115)) * 100}%, rgba(61,40,23,0.15) ${(tourTime / (tourDuration || 115)) * 100}%, rgba(61,40,23,0.15) 100%)`
+                }}
+              />
+            </div>
+
+            {/* Exit Button */}
+            <button
+              onClick={exitTour}
+              className={`flex items-center justify-center w-8 h-8 rounded-full transition-all active:scale-95 border shrink-0 ${
+                isDark 
+                  ? 'bg-white/10 text-white hover:bg-white/25 border-white/20' 
+                  : 'bg-[#3D2817]/10 text-[#3D2817] hover:bg-[#3D2817]/25 border-[#3D2817]/20'
+              }`}
+              title="Exit Tour"
+            >
+              <X size={14} />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Spring-Animated Virtual Cursor */}
+      <AnimatePresence>
+        {isTourPlaying && virtualCursor.visible && (
+          <motion.div
+            style={{
+              position: 'fixed',
+              left: 0,
+              top: 0,
+              x: virtualCursor.x,
+              y: virtualCursor.y,
+              pointerEvents: 'none',
+              zIndex: 9999,
+            }}
+            animate={{
+              x: virtualCursor.x,
+              y: virtualCursor.y,
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 80,
+              damping: 15,
+              mass: 0.6
+            }}
+            className="flex items-center justify-center translate-x-[-4.5px] translate-y-[-3px]"
+          >
+            <svg 
+              width="22" 
+              height="22" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              className="drop-shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+            >
+              <path 
+                d="M4.5 3V18.5L9.3 14.1L13.6 21.5L16.2 20L11.9 12.7L18.5 12.7L4.5 3Z" 
+                fill="#ffffff" 
+                stroke="#000000" 
+                strokeWidth="1.5" 
+                strokeLinejoin="round"
+              />
+            </svg>
           </motion.div>
         )}
       </AnimatePresence>
