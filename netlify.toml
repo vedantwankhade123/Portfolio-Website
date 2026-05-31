@@ -1,0 +1,11 @@
+[build]
+  # Vite compiles to the "dist" folder by default
+  publish = "dist"
+  # The command to install and build using pnpm (detected via your pnpm-lock.yaml)
+  command = "pnpm run build"
+
+[[redirects]]
+  # Redirect all routes to index.html to support React/Vite client-side routing
+  from = "/*"
+  to = "/index.html"
+  status = 200
