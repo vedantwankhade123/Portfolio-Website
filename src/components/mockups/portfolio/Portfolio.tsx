@@ -35,9 +35,13 @@ import {
   ZoomIn,
   ZoomOut,
   FileText,
-  File as FileIcon
+  File as FileIcon,
+  Volume2,
+  Pause
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Aurora from '../../ui/Aurora';
+import { getCloudinaryUrl } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
@@ -72,7 +76,7 @@ const CERTIFICATES_DATA = [
     instructors: ["Abdul Bari"],
     platform: "Udemy",
     date: "April 2, 2025",
-    image: "/images/Python.jpg",
+    image: getCloudinaryUrl("/images/Python.jpg"),
     credentialId: "UC-914a488d-bd1d-4118-8806-3a85c3acf6c4",
     credentialUrl: "https://ude.my/UC-914a488d-bd1d-4118-8806-3a85c3acf6c4",
     associatedSkills: ['Python', 'SQL', 'Git'],
@@ -126,7 +130,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">🩺</span>,
     gradient: 'from-[#FF8C42] to-[#993300]',
     video: '',
-    thumbnail: '/images/healbook.jpg',
+    thumbnail: getCloudinaryUrl('/images/healbook.jpg'),
     objectFit: 'contain',
     liveUrl: 'not_live',
     githubUrl: 'https://github.com/vedantwankhade123/healbook'
@@ -138,7 +142,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">🛍️</span>,
     gradient: 'from-[#8B5A3C] to-[#4D1A00]',
     video: '',
-    thumbnail: '/images/ekdanta.png',
+    thumbnail: getCloudinaryUrl('/images/ekdanta.png'),
     objectFit: 'contain',
     liveUrl: 'https://ekdanta-c4074.web.app/',
     githubUrl: 'https://github.com/vedantwankhade123/ekdanta-ecommerce'
@@ -150,7 +154,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">✨</span>,
     gradient: 'from-[#6F4830] to-[#3D2817]',
     video: 'https://www.youtube.com/embed/KNsh4871Ke8?si=dPX2Q_iLSYGgQMTk&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=KNsh4871Ke8',
-    thumbnail: '/images/eph.png',
+    thumbnail: getCloudinaryUrl('/images/eph.png'),
     liveUrl: 'https://engineeringprojecthub.online',
     githubUrl: 'private'
   },
@@ -161,7 +165,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">🤖</span>,
     gradient: 'from-[#5C3A24] to-[#8B5A3C]',
     video: 'https://www.youtube.com/embed/g5Jm7cfGxOI?si=82K-R0Wy7nhCeweE&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=g5Jm7cfGxOI',
-    thumbnail: '/images/drawgit.jpg',
+    thumbnail: getCloudinaryUrl('/images/drawgit.jpg'),
     liveUrl: 'https://drawgit.netlify.app/',
     githubUrl: 'https://github.com/vedantwankhade123/drawgit.git'
   },
@@ -172,7 +176,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">🌤️</span>,
     gradient: 'from-[#3D2817] to-[#6F4830]',
     video: 'https://www.youtube.com/embed/M7qJBLAaquA?si=dG6yznPgrNTtfgsj&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=M7qJBLAaquA',
-    thumbnail: '/images/neucv.png',
+    thumbnail: getCloudinaryUrl('/images/neucv.png'),
     liveUrl: 'not_live',
     githubUrl: 'unavailable'
   }
@@ -234,35 +238,35 @@ const ACHIEVEMENT_IMAGES = [
     title: "HackGenX 2026", 
     subtitle: "Consolation Prize (AI Project)",
     description: "Developed an AI-powered leak and anomaly detection system for urban water infrastructure, earning recognition at a national-level hackathon.",
-    images: ["/images/HGX.png", "/images/Hack.jpg", "/images/gen.jpg"], 
+    images: ["/images/HGX.png", "/images/Hack.jpg", "/images/gen.jpg"].map(getCloudinaryUrl), 
     isVertical: true
   },
   { 
     title: "Codorithm 2K25", 
     subtitle: "State-Level Coding Competition",
     description: "Participated in a state-level coding competition, enhancing problem-solving, algorithmic thinking, and competitive programming skills in a high-pressure environment.",
-    images: ["/images/COC.jpg"], 
+    images: ["/images/COC.jpg"].map(getCloudinaryUrl), 
     isVertical: false
   },
   { 
     title: "Research Poster Presentation – 3rd Rank", 
     subtitle: "International Conference (MACCS-2024)",
     description: "Presented a research poster at an international conference and secured 3rd rank, demonstrating strong communication, innovation, and technical presentation skills.",
-    images: ["/images/RPP.jpg"], 
+    images: ["/images/RPP.jpg"].map(getCloudinaryUrl), 
     isVertical: true
   },
   { 
     title: "Circuitron 2024", 
     subtitle: "2nd Winner (Electronics Competition)",
     description: "Secured 2nd place in Circuitron 2024 at G H Raisoni University by designing and developing electronic circuit solutions across multiple competitive rounds, demonstrating strong problem-solving and hardware skills.",
-    images: ["/images/circuitron.jpg", "/images/CEC.jpg"], 
+    images: ["/images/circuitron.jpg", "/images/CEC.jpg"].map(getCloudinaryUrl), 
     isVertical: true 
   },
   { 
     title: "Rackathon 2024", 
     subtitle: "Innovation & Design Competition",
     description: "Actively participated in a national-level innovation competition, working on creative problem-solving and product design thinking.",
-    images: ["/images/rackathon.jpg", "/images/RAC.png"], 
+    images: ["/images/rackathon.jpg", "/images/RAC.png"].map(getCloudinaryUrl), 
     isVertical: false
   }
 ];
@@ -387,6 +391,8 @@ export function Portfolio() {
   const [isDragging, setIsDragging] = useState(false);
   const [isScrollbarHovered, setIsScrollbarHovered] = useState(false);
   const isDraggingRef = useRef(false);
+  const isScrollingRef = useRef(false);
+  const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
   const [isAchievementsHovered, setIsAchievementsHovered] = useState(false);
   const [isAchievementDescOpen, setIsAchievementDescOpen] = useState(false);
   const [resumeToast, setResumeToast] = useState<'idle' | 'unavailable'>('idle');
@@ -508,7 +514,7 @@ export function Portfolio() {
       tourAudioRef.current.pause();
     }
     
-    const audio = new Audio('/Voice-Tour.mp3');
+    const audio = new Audio(getCloudinaryUrl('/Voice-Tour.mp3'));
     audio.currentTime = 0;
     tourAudioRef.current = audio;
     
@@ -823,15 +829,19 @@ export function Portfolio() {
   };
 
   const handleNavClick = (id: string) => {
-    if (isScrolling) return;
+    if (isScrolling || isScrollingRef.current) return;
     const currentIndex = SECTIONS.indexOf(activeSection);
     const nextIndex = SECTIONS.indexOf(id);
     if (currentIndex === nextIndex) return;
     setDirection(nextIndex > currentIndex ? 1 : -1);
     setIsMenuOpen(false);
     setIsScrolling(true);
+    isScrollingRef.current = true;
     setActiveSection(id);
-    setTimeout(() => setIsScrolling(false), 500);
+    setTimeout(() => {
+      setIsScrolling(false);
+      isScrollingRef.current = false;
+    }, 500);
   };
 
   const getWrappedAchievementIndex = useCallback(
@@ -853,7 +863,7 @@ export function Portfolio() {
   // Scroll Handling
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      if (isScrolling) return;
+      if (isScrolling || isScrollingRef.current) return;
 
       const currentIndex = SECTIONS.indexOf(activeSection);
 
@@ -862,8 +872,12 @@ export function Portfolio() {
         if (activeSection === 'projects' && activeProjectIndex < PROJECTS.length - 1) {
           setDirection(1);
           setIsScrolling(true);
+          isScrollingRef.current = true;
           setActiveProjectIndex(prev => prev + 1);
-          setTimeout(() => setIsScrolling(false), 600);
+          setTimeout(() => {
+            setIsScrolling(false);
+            isScrollingRef.current = false;
+          }, 1200);
           return;
         }
 
@@ -875,19 +889,27 @@ export function Portfolio() {
           if (window.innerWidth < 1024 && skillPage < maxSkillPage) {
             setDirection(1);
             setIsScrolling(true);
+            isScrollingRef.current = true;
             setSkillPage(prev => prev + 1);
-            setTimeout(() => setIsScrolling(false), 400);
+            setTimeout(() => {
+              setIsScrolling(false);
+              isScrollingRef.current = false;
+            }, 400);
             return;
           }
 
           if (activeCertIndex < CERTIFICATES_DATA.length - 1) {
             setDirection(1);
             setIsScrolling(true);
+            isScrollingRef.current = true;
             setActiveCertIndex(prev => prev + 1);
             setSkillPage(0);
             setHighlightPage(0);
             setInstructorPage(0);
-            setTimeout(() => setIsScrolling(false), 500);
+            setTimeout(() => {
+              setIsScrolling(false);
+              isScrollingRef.current = false;
+            }, 1000);
             return;
           }
         }
@@ -905,6 +927,7 @@ export function Portfolio() {
         if (currentIndex < SECTIONS.length - 1) {
           setDirection(1);
           setIsScrolling(true);
+          isScrollingRef.current = true;
           const nextSection = SECTIONS[currentIndex + 1];
           setActiveSection(nextSection);
           if (nextSection === 'projects') setActiveProjectIndex(0);
@@ -914,7 +937,10 @@ export function Portfolio() {
             setHighlightPage(0);
             setInstructorPage(0);
           }
-          setTimeout(() => setIsScrolling(false), 300); 
+          setTimeout(() => {
+            setIsScrolling(false);
+            isScrollingRef.current = false;
+          }, 1000); 
          }
       } else if (e.deltaY < -50) {
         // Scroll Up
@@ -931,8 +957,12 @@ export function Portfolio() {
         if (activeSection === 'projects' && activeProjectIndex > 0) {
           setDirection(-1);
           setIsScrolling(true);
+          isScrollingRef.current = true;
           setActiveProjectIndex(prev => prev - 1);
-          setTimeout(() => setIsScrolling(false), 300);
+          setTimeout(() => {
+            setIsScrolling(false);
+            isScrollingRef.current = false;
+          }, 1200);
           return;
         }
 
@@ -940,8 +970,12 @@ export function Portfolio() {
           if (window.innerWidth < 1024 && skillPage > 0) {
             setDirection(-1);
             setIsScrolling(true);
+            isScrollingRef.current = true;
             setSkillPage(prev => prev - 1);
-            setTimeout(() => setIsScrolling(false), 400);
+            setTimeout(() => {
+              setIsScrolling(false);
+              isScrollingRef.current = false;
+            }, 400);
             return;
           }
 
@@ -950,12 +984,16 @@ export function Portfolio() {
             if (!prevCert) return;
             setDirection(-1);
             setIsScrolling(true);
+            isScrollingRef.current = true;
             setActiveCertIndex(prev => prev - 1);
             const prevCertSkills = prevCert.associatedSkills;
             setSkillPage(window.innerWidth < 1024 ? Math.ceil(prevCertSkills.length / 3) - 1 : 0);
             setHighlightPage(0);
             setInstructorPage(0);
-            setTimeout(() => setIsScrolling(false), 500);
+            setTimeout(() => {
+              setIsScrolling(false);
+              isScrollingRef.current = false;
+            }, 1000);
             return;
           }
         }
@@ -963,6 +1001,7 @@ export function Portfolio() {
         if (currentIndex > 0) {
           setDirection(-1);
           setIsScrolling(true);
+          isScrollingRef.current = true;
           const prevSection = SECTIONS[currentIndex - 1];
           setActiveSection(prevSection);
           if (prevSection === 'projects') setActiveProjectIndex(PROJECTS.length - 1);
@@ -972,7 +1011,10 @@ export function Portfolio() {
             setHighlightPage(0);
             setInstructorPage(0);
           }
-          setTimeout(() => setIsScrolling(false), 300); // Reduced delay
+          setTimeout(() => {
+            setIsScrolling(false);
+            isScrollingRef.current = false;
+          }, 1000);
         }
       }
     };
@@ -1022,7 +1064,7 @@ export function Portfolio() {
       scale: 1,
       transition: isMobile ? {
         duration: 0.3,
-        ease: "easeOut"
+        ease: "easeOut" as any
       } : { 
         type: "spring" as any,
         stiffness: 80,
@@ -1037,7 +1079,7 @@ export function Portfolio() {
       scale: isMobile ? 1 : 0.98,
       transition: { 
         duration: isMobile ? 0.25 : 0.4,
-        ease: "easeInOut"
+        ease: "easeInOut" as any
       }
     })
   };
@@ -1296,7 +1338,7 @@ export function Portfolio() {
     for (let i = 1; i <= totalFrames; i += step) {
       const img = new Image();
       const frameStr = String(i).padStart(3, '0');
-      img.src = `/images/campus_frames/ezgif-frame-${frameStr}.png`;
+      img.src = getCloudinaryUrl(`/images/campus_frames/ezgif-frame-${frameStr}.png`);
       // Asynchronously decode the frame in the GPU before we draw it
       img.decode().catch(() => {});
       loadedImages.push(img);
@@ -1795,20 +1837,61 @@ export function Portfolio() {
           animation: gradient-rotate 10s ease infinite;
         }
 
+        @keyframes animated-gradient {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animated-gradient-dark {
+          background: linear-gradient(-45deg, #0F0800, #221008, #120904, #2A1208);
+          background-size: 400% 400%;
+          animation: animated-gradient 18s ease infinite;
+        }
+        .animated-gradient-light {
+          background: linear-gradient(-45deg, #FFF5EC, #FADCC3, #FFFBF7, #FBE3D0);
+          background-size: 400% 400%;
+          animation: animated-gradient 18s ease infinite;
+        }
+
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        .animate-shimmer-dark {
+          background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.6s infinite;
+        }
+        .animate-shimmer-light {
+          background: linear-gradient(90deg, rgba(0,0,0,0.02) 25%, rgba(0,0,0,0.06) 50%, rgba(0,0,0,0.02) 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.6s infinite;
+        }
       `}</style>
 
       {/* Main Container Frame */}
-      <div className="p-[10px] h-full w-full">
+      <div className="p-0 lg:p-[10px] h-full w-full">
         <div 
-          className="relative h-full w-full overflow-hidden rounded-3xl flex flex-col transition-colors duration-[2200ms] ease-in-out"
+          className="relative h-full w-full overflow-hidden rounded-none lg:rounded-3xl flex flex-col transition-colors duration-[2200ms] ease-in-out"
           style={{
             backgroundColor: isDark ? '#0F0800' : '#FFF5EC'
           }}
         >
+          {/* Animated Aurora Gradient Background */}
+          {activeSection !== 'education' && (
+            <div className="absolute inset-0 pointer-events-none select-none overflow-hidden rounded-none lg:rounded-3xl z-0 opacity-35">
+              <Aurora
+                colorStops={isDark ? ["#FF8C42", "#8B5A3C", "#2A1208"] : ["#FFEDD8", "#F3D5B5", "#FFF5EC"]}
+                blend={0.6}
+                amplitude={1.1}
+                speed={0.4}
+              />
+            </div>
+          )}
           
           {/* Global Viewport Background Image with Scroll Transition */}
           <motion.div
-            className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden rounded-3xl"
+            className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden rounded-none lg:rounded-3xl"
             initial={{ opacity: 0, scale: 1.15, y: 0 }}
             animate={{
               opacity: activeSection === 'home' ? 1 : 0,
@@ -1853,11 +1936,27 @@ export function Portfolio() {
               }}
             />
 
+            {/* Mobile Profile Image on Top of Mountains with Fade Mask */}
+            {isMobile && activeSection === 'home' && (
+              <motion.img
+                initial={{ opacity: 0, y: 70, scale: 1.15 }}
+                animate={{ opacity: 1, y: 0, scale: 1.35 }}
+                transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] as any }}
+                src={getCloudinaryUrl("/images/vedant-profile.png")}
+                alt="Profile"
+                className="absolute bottom-[28%] left-[51%] -translate-x-1/2 w-[300px] h-[300px] object-contain object-bottom pointer-events-none select-none z-[12]"
+                style={{
+                  WebkitMaskImage: 'linear-gradient(to top, transparent 10%, black 35%)',
+                  maskImage: 'linear-gradient(to top, transparent 10%, black 35%)'
+                }}
+              />
+            )}
+
             {/* Background Mountains (Light Mode Overlay) */}
             <motion.div 
-              className="absolute inset-0 bg-cover bg-center"
+              className="absolute inset-0 bg-cover bg-center z-10"
               style={{
-                backgroundImage: 'linear-gradient(rgba(255, 245, 236, 0.38), rgba(255, 245, 236, 0.38)), url("/images/hero-bg.png")',
+                backgroundImage: `linear-gradient(rgba(255, 245, 236, 0.38), rgba(255, 245, 236, 0.38)), url("${getCloudinaryUrl("/images/hero-bg.png")}")`,
               }}
               animate={{ opacity: isDark ? 0 : 1 }}
               transition={{ duration: 2.2, ease: "easeInOut" }}
@@ -1865,9 +1964,9 @@ export function Portfolio() {
 
             {/* Background Mountains (Dark Mode Overlay) */}
             <motion.div 
-              className="absolute inset-0 bg-cover bg-center"
+              className="absolute inset-0 bg-cover bg-center z-10"
               style={{
-                backgroundImage: 'linear-gradient(rgba(15, 8, 0, 0.72), rgba(15, 8, 0, 0.72)), url("/images/hero-bg.png")',
+                backgroundImage: `linear-gradient(rgba(15, 8, 0, 0.72), rgba(15, 8, 0, 0.72)), url("${getCloudinaryUrl("/images/hero-bg.png")}")`,
               }}
               animate={{ opacity: isDark ? 1 : 0 }}
               transition={{ duration: 2.2, ease: "easeInOut" }}
@@ -1925,7 +2024,28 @@ export function Portfolio() {
 
                 {/* Right: Actions */}
                 <div className="flex items-center gap-5 md:gap-8">
-                  <div className="hidden md:flex items-center gap-4">
+                  <div className="hidden md:flex items-center gap-1.5">
+                    {/* Voice Tour Speaker Button */}
+                    <button
+                      onClick={() => {
+                        if (isTourPlaying) {
+                          toggleTourPlayback();
+                        } else {
+                          startTour();
+                        }
+                      }}
+                      className={`p-2.5 rounded-full transition-all hover:scale-110 active:scale-95 overflow-hidden flex items-center justify-center relative ${activeSection === 'education' ? 'text-white hover:text-white/80' : (isDark ? 'text-[#F3D5B5]' : 'text-[#3D2817]')}`}
+                      title={isTourPlaying ? (isTourAudioPlaying ? "Pause Voice Tour" : "Play Voice Tour") : "Start Voice Tour"}
+                    >
+                      {!isTourPlaying ? (
+                        <Volume2 size={20} />
+                      ) : isTourAudioPlaying ? (
+                        <Pause size={20} className="relative z-10" />
+                      ) : (
+                        <Play size={20} />
+                      )}
+                    </button>
+
                     <button
                       onClick={toggleTheme}
                       className={`p-2.5 rounded-full transition-all hover:scale-110 active:scale-90 overflow-hidden flex items-center justify-center ${activeSection === 'education' ? 'text-white hover:text-white/80' : (isDark ? 'text-[#F3D5B5]' : 'text-[#3D2817]')}`}
@@ -1998,7 +2118,7 @@ export function Portfolio() {
 
             {/* Custom Floating Vertical Scrollbar */}
             <div 
-              className="absolute right-6 top-1/2 -translate-y-1/2 z-[60] hidden lg:flex flex-col items-center py-6 select-none"
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-[60] hidden lg:flex flex-col items-center py-6 select-none"
               onMouseEnter={() => setIsScrollbarHovered(true)}
               onMouseLeave={() => setIsScrollbarHovered(false)}
             >
@@ -2135,7 +2255,7 @@ export function Portfolio() {
 
 
                     {/* Background Text - Positioned at the top just below the header */}
-                    <div className="absolute top-[44px] md:top-14 left-0 right-0 pointer-events-none select-none z-10 flex flex-col items-center justify-start">
+                    <div className="absolute max-md:top-[12px] top-[44px] md:top-14 left-0 right-0 pointer-events-none select-none z-10 flex flex-col items-center justify-start">
                       {/* Decorative Metadata Row above background text */}
                       <div className="hidden md:flex w-full max-w-[70vw] justify-between items-end mb-1 select-none opacity-30">
                         <span className="text-[10px] font-bold tracking-[0.25em] uppercase" style={{ color: isDark ? '#FFFFFF' : '#000000', fontFamily: "'Poppins', sans-serif" }}>
@@ -2285,76 +2405,25 @@ export function Portfolio() {
                         <div className="hidden md:block md:col-span-3 order-1 md:order-1"></div>
                       )}
 
-                      <div className="max-md:absolute max-md:bottom-0 max-md:left-1/2 max-md:-translate-x-1/2 max-md:w-[calc(100vw-20px)] max-md:h-[75vh] max-md:z-10 md:col-span-6 flex items-end justify-center h-full relative order-3 md:order-2">
-                        <div className="relative w-full max-md:h-full max-md:w-full h-[65vh] md:h-[85vh] flex items-end justify-center overflow-visible">
-                            {isMobile ? (
-                              <div className="absolute top-[45%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[260px] h-[260px] flex items-end justify-center overflow-visible">
-                                {/* 1. Background Solid Circle Disc */}
-                                <div className="absolute bottom-0 w-[260px] h-[260px] rounded-full shadow-2xl transition-all duration-[2200ms] z-0"
-                                     style={{
-                                       backgroundColor: isDark ? '#1C0F00' : '#FFF5EC',
-                                       boxShadow: isDark 
-                                         ? '0 0 25px rgba(255, 140, 66, 0.4)' 
-                                         : '0 0 20px rgba(139, 90, 60, 0.3)'
-                                     }}
-                                />
-                                
-                                {/* 2. Bottom clipped part of the body */}
-                                <div className="absolute bottom-0 w-[260px] h-[260px] rounded-b-full overflow-hidden z-10 pointer-events-none flex justify-center items-end">
-                                  <motion.img 
-                                    variants={imageVariants}
-                                    initial="initial"
-                                    animate="animate"
-                                    exit="exit"
-                                    src="/images/vedant-profile.png" 
-                                    alt="Vedant Wankhade - Profile Picture" 
-                                    className="relative left-[4px] w-[340px] h-[340px] object-contain object-bottom max-w-none shrink-0"
-                                    style={{ 
-                                      imageRendering: 'auto', 
-                                      WebkitBackfaceVisibility: 'hidden'
-                                    }}
-                                  />
-                                </div>
-
-                                {/* 3. Circular Border Ring Overlay (covers the body at the bottom) */}
-                                <div className="absolute bottom-0 w-[260px] h-[260px] rounded-full border-[4px] z-15 pointer-events-none transition-all duration-[2200ms]"
-                                     style={{
-                                       borderColor: isDark ? '#FF8C42' : '#8B5A3C',
-                                     }}
-                                />
-
-                                {/* 4. Top unclipped part of the head (popping out of the circle) */}
-                                <div className="absolute bottom-0 w-[260px] h-[260px] overflow-visible z-20 pointer-events-none flex justify-center items-end">
-                                  <motion.img 
-                                    variants={imageVariants}
-                                    initial="initial"
-                                    animate="animate"
-                                    exit="exit"
-                                    src="/images/vedant-profile.png" 
-                                    alt="Vedant Wankhade - Profile Picture" 
-                                    className="relative left-[4px] w-[340px] h-[340px] object-contain object-bottom max-w-none shrink-0"
-                                    style={{ 
-                                      imageRendering: 'auto', 
-                                      WebkitBackfaceVisibility: 'hidden', 
-                                      clipPath: 'polygon(0 0, 100% 0, 100% 80%, 0 80%)'
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                            ) : (
-                              <motion.img 
-                                variants={imageVariants}
-                                initial="initial"
-                                animate="animate"
-                                exit="exit"
-                                src="/images/vedant-profile.png" 
-                                alt="Vedant Wankhade - Full Stack Developer & AI Enthusiast Profile Picture" 
-                                className="h-full w-auto object-contain drop-shadow-2xl mx-auto"
-                                style={{ imageRendering: 'auto', WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
-                              />
+                      <div className="max-md:hidden md:col-span-6 flex items-end justify-center h-full relative order-3 md:order-2">
+                        <div className="relative w-full h-[65vh] md:h-[85vh] flex items-end justify-center overflow-visible">
+                          <div className="relative h-full w-auto flex items-center justify-center">
+                            {!loadedImages.profile && (
+                              <div className={`absolute inset-y-0 w-[300px] rounded-3xl z-30 ${isDark ? 'animate-shimmer-dark' : 'animate-shimmer-light'}`} />
                             )}
-                            
-                         </div>
+                            <motion.img 
+                              variants={imageVariants}
+                              initial="initial"
+                              animate="animate"
+                              exit="exit"
+                              onLoad={() => setLoadedImages(prev => ({ ...prev, profile: true }))}
+                              src={getCloudinaryUrl("/images/vedant-profile.png")} 
+                              alt="Vedant Wankhade - Full Stack Developer & AI Enthusiast Profile Picture" 
+                              className="h-full w-auto object-contain drop-shadow-2xl mx-auto"
+                              style={{ imageRendering: 'auto', WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+                            />
+                          </div>
+                        </div>
                       </div>
 
                       {/* Mobile Voice Tour Trigger (placed here to escape z-index stacking context on mobile) */}
@@ -2441,7 +2510,7 @@ export function Portfolio() {
                         initial="initial"
                         animate="animate"
                         exit="exit"
-                        className="max-md:absolute max-md:top-[6px] max-md:bottom-auto max-md:left-1/2 max-md:-translate-x-1/2 max-md:pb-0 max-md:z-[20] md:col-span-3 flex flex-col items-center justify-center md:justify-end h-auto md:h-full order-2 md:order-3 pb-8 md:pb-14 md:translate-x-8">
+                        className="max-md:absolute max-md:bottom-[115px] max-md:top-auto max-md:left-1/2 max-md:-translate-x-1/2 max-md:pb-0 max-md:z-[20] md:col-span-3 flex flex-col items-center justify-center md:justify-end h-auto md:h-full order-2 md:order-3 pb-8 md:pb-14 md:translate-x-8">
                         <div className="flex items-center gap-6 md:gap-7">
                           {[
                             { name: 'Linkedin', icon: <Linkedin className="w-5 h-5 md:w-[26px] md:h-[26px]" />, url: "https://www.linkedin.com/in/vedant-wankhade123" },
@@ -2984,7 +3053,7 @@ export function Portfolio() {
                     className="h-full w-full flex items-start lg:items-center justify-center p-6 md:p-12 pt-2 max-md:pt-16 max-md:pb-24 lg:pt-0 max-md:overflow-y-auto lg:overflow-hidden overflow-x-hidden relative"
                   >
                     {/* Projects Navigation - Moved to full-width container */}
-                    <div className="hidden lg:flex absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-6 md:px-10 z-50 pointer-events-none">
+                    <div className="hidden lg:flex absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-6 md:px-14 z-50 pointer-events-none">
                       <button 
                         onClick={() => {
                           setDirection(-1);
@@ -3007,7 +3076,7 @@ export function Portfolio() {
 
                     <div className="max-w-6xl w-full flex flex-col items-center justify-center relative min-h-[80vh] max-md:min-h-0">
 
-                      <div className="relative w-full h-full flex flex-col items-center justify-start lg:justify-center gap-12 max-md:gap-4">
+                      <div className="relative w-full h-full flex flex-col items-center justify-start lg:justify-center lg:gap-6 gap-4">
                         <AnimatePresence mode="popLayout" custom={direction}>
                           <motion.div 
                             key={activeProjectIndex}
@@ -3016,19 +3085,22 @@ export function Portfolio() {
                             initial="initial"
                             animate="center"
                             exit="exit"
-                            className="flex flex-col lg:flex-row items-center gap-8 lg:gap-16 w-full max-w-6xl max-md:gap-4 max-md:-mt-10"
+                            className="flex flex-col lg:flex-row items-center gap-8 lg:gap-6 w-full max-w-6xl max-md:gap-4 max-md:-mt-10"
                           >
                             {/* Left Side: Project Media */}
                             <motion.div 
                               variants={projectItemVariants}
                               className="w-full lg:w-1/2 flex justify-center lg:justify-end min-w-0"
                             >
-                              <div className={`relative group rounded-[2rem] max-md:rounded-[1.5rem] overflow-hidden border shadow-2xl transition-all duration-700 aspect-video w-full max-w-[600px] max-md:max-w-[320px] lg:max-w-[700px]
+                              <div className={`relative group rounded-[2rem] max-md:rounded-[1.5rem] overflow-hidden border shadow-2xl transition-all duration-700 aspect-video w-full max-w-[520px] max-md:max-w-[280px] lg:max-w-[490px]
                                 ${isDark ? 'bg-[#1A0904] border-[#2A1208]' : 'bg-white border-[#F3D5B5]'}`}
                                 style={{
                                   boxShadow: isDark ? '0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' : '0 30px 60px rgba(0,0,0,0.15)'
                                 }}
                               >
+                                {!loadedImages[PROJECTS[activeProjectIndex].thumbnail] && (
+                                  <div className={`absolute inset-0 z-30 rounded-[2rem] max-md:rounded-[1.5rem] ${isDark ? 'animate-shimmer-dark' : 'animate-shimmer-light'}`} />
+                                )}
                                  <div className="absolute inset-0 bg-black flex items-center justify-center">
                                    <div className={`absolute inset-0 bg-gradient-to-br ${PROJECTS[activeProjectIndex].gradient} opacity-40 group-hover:opacity-60 transition-opacity duration-500`} />
                                    
@@ -3044,6 +3116,7 @@ export function Portfolio() {
                                            >
                                              <img 
                                                src={PROJECTS[activeProjectIndex].thumbnail} 
+                                               onLoad={() => setLoadedImages(prev => ({ ...prev, [PROJECTS[activeProjectIndex].thumbnail]: true }))}
                                                alt={`Thumbnail for ${PROJECTS[activeProjectIndex].title}`}
                                                className="w-full h-full opacity-60 transition-transform duration-700 group-hover:scale-105"
                                                style={{ objectFit: (PROJECTS[activeProjectIndex].objectFit as any) || 'cover' }}
@@ -3086,6 +3159,7 @@ export function Portfolio() {
                                           <>
                                             <img 
                                               src={PROJECTS[activeProjectIndex].thumbnail} 
+                                              onLoad={() => setLoadedImages(prev => ({ ...prev, [PROJECTS[activeProjectIndex].thumbnail]: true }))}
                                               alt={`Thumbnail for ${PROJECTS[activeProjectIndex].title}`}
                                               className="w-full h-full opacity-80 transition-transform duration-700 group-hover:scale-105"
                                               style={{ objectFit: (PROJECTS[activeProjectIndex].objectFit as any) || 'cover' }}
@@ -3206,39 +3280,42 @@ export function Portfolio() {
                         </AnimatePresence>
                       </div>
 
-                      {/* Manual pagination dots */}
-                      <div className="absolute bottom-[2%] max-md:bottom-[-64px] left-1/2 -translate-x-1/2 flex items-center gap-4 z-50">
-                        <button 
-                          onClick={() => {
-                            setDirection(-1);
-                            setActiveProjectIndex((prev) => (prev - 1 + PROJECTS.length) % PROJECTS.length);
-                          }}
-                          className={`md:hidden p-2 rounded-full border transition-all duration-300 ${isDark ? 'bg-white/5 border-white/10 text-white/50' : 'bg-black/5 border-black/10 text-black/50'}`}
-                        >
-                          <ChevronLeft size={16} />
-                        </button>
-                        <div className="flex gap-3">
-                          {PROJECTS.map((_, idx) => (
-                            <button 
-                              key={idx}
-                              onClick={() => {
-                                setDirection(idx > activeProjectIndex ? 1 : -1);
-                                setActiveProjectIndex(idx);
-                              }}
-                              className={`h-2 rounded-full transition-all duration-300 ${activeProjectIndex === idx ? 'w-10 bg-orange-500' : 'w-2 bg-gray-400 opacity-30 hover:opacity-100 cursor-pointer'}`}
-                            />
-                          ))}
+                      {/* Next Projects Cards */}
+                      <div className="hidden lg:block w-full max-w-6xl lg:mt-4 mt-6 px-4 z-50">
+                        <div className="grid grid-cols-3 max-md:grid-cols-1 gap-4">
+                          {Array.from({ length: 3 }).map((_, step) => {
+                            const nextIndex = (activeProjectIndex + 1 + step) % PROJECTS.length;
+                            const project = PROJECTS[nextIndex];
+                            return (
+                              <motion.div
+                                key={project.title}
+                                onClick={() => {
+                                  setDirection(1);
+                                  setActiveProjectIndex(nextIndex);
+                                }}
+                                whileHover={{ y: -6 }}
+                                whileTap={{ scale: 0.98 }}
+                                className={`cursor-pointer group relative aspect-video w-full rounded-2xl overflow-hidden border transition-all duration-300 shadow-lg bg-black/40
+                                  ${isDark 
+                                    ? 'border-white/10 hover:border-orange-500/50 hover:shadow-orange-500/10' 
+                                    : 'border-black/10 hover:border-[#8B5A3C]/50 hover:shadow-[#8B5A3C]/10'}`}
+                              >
+                                {!loadedImages[getCloudinaryUrl(project.thumbnail)] && (
+                                  <div className={`absolute inset-0 z-30 rounded-2xl ${isDark ? 'animate-shimmer-dark' : 'animate-shimmer-light'}`} />
+                                )}
+                                <img 
+                                  src={getCloudinaryUrl(project.thumbnail)} 
+                                  onLoad={() => setLoadedImages(prev => ({ ...prev, [getCloudinaryUrl(project.thumbnail)]: true }))}
+                                  alt={project.title} 
+                                  className="w-full h-full opacity-70 group-hover:opacity-100 transition-all duration-500 rounded-2xl" 
+                                  style={{ objectFit: (project.objectFit as any) || 'cover' }}
+                                />
+                              </motion.div>
+                            );
+                          })}
                         </div>
-                        <button 
-                          onClick={() => {
-                            setDirection(1);
-                            setActiveProjectIndex((prev) => (prev + 1) % PROJECTS.length);
-                          }}
-                          className={`md:hidden p-2 rounded-full border transition-all duration-300 ${isDark ? 'bg-white/5 border-white/10 text-white/50' : 'bg-black/5 border-black/10 text-black/50'}`}
-                        >
-                          <ChevronRight size={16} />
-                        </button>
                       </div>
+
                     </div>
                   </motion.div>
                 )}
@@ -3287,6 +3364,9 @@ export function Portfolio() {
                               whileTap={{ scale: 0.98 }}
                             >
                               {/* Background image with crossfade */}
+                              {!loadedImages[`bento-${idx}-${currentImgIdx}`] && (
+                                 <div className={`absolute inset-0 z-30 ${isDark ? 'animate-shimmer-dark' : 'animate-shimmer-light'}`} />
+                              )}
                               <AnimatePresence mode="wait">
                                 <motion.img
                                   key={`bento-img-${idx}-${currentImgIdx}`}
@@ -3297,6 +3377,7 @@ export function Portfolio() {
                                   animate={{ opacity: 1 }}
                                   exit={{ opacity: 0 }}
                                   transition={{ duration: 0.8, ease: 'easeInOut' }}
+                                  onLoad={() => setLoadedImages(prev => ({ ...prev, [`bento-${idx}-${currentImgIdx}`]: true }))}
                                 />
                               </AnimatePresence>
 
@@ -3392,6 +3473,9 @@ export function Portfolio() {
                           >
                             {/* Expanded image with crossfade */}
                             <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-black shrink-0">
+                              {!loadedImages[`lightbox-${expandedAchievement}-${expandedImgIndex}`] && (
+                                <div className={`absolute inset-0 z-30 ${isDark ? 'animate-shimmer-dark' : 'animate-shimmer-light'}`} />
+                              )}
                               <AnimatePresence mode="wait">
                                 <motion.img
                                   key={`expanded-img-${expandedAchievement}-${expandedImgIndex}`}
@@ -3402,6 +3486,7 @@ export function Portfolio() {
                                   animate={{ opacity: 1, scale: 1 }}
                                   exit={{ opacity: 0, scale: 0.97 }}
                                   transition={{ duration: 0.4, ease: 'easeInOut' }}
+                                  onLoad={() => setLoadedImages(prev => ({ ...prev, [`lightbox-${expandedAchievement}-${expandedImgIndex}`]: true }))}
                                 />
                               </AnimatePresence>
 
@@ -3728,145 +3813,31 @@ export function Portfolio() {
               className={`w-full max-w-5xl h-[90vh] flex flex-col rounded-2xl border shadow-2xl overflow-hidden relative ${isDark ? 'bg-[#150D08] border-orange-500/20' : 'bg-[#FFF5EC] border-orange-200'}`}
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Print Stylesheet */}
-              <style>{`
-                @media print {
-                  body * {
-                    visibility: hidden;
-                  }
-                  .resume-print-area, .resume-print-area * {
-                    visibility: visible;
-                  }
-                  .resume-print-area {
-                    position: fixed;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                    height: 100%;
-                    margin: 0 !important;
-                    padding: 2.5cm !important;
-                    box-shadow: none !important;
-                    background: white !important;
-                    color: black !important;
-                    transform: none !important;
-                    zoom: 1 !important;
-                  }
-                }
-              `}</style>
-
               {/* Modal Header */}
               <div className={`p-4 flex items-center justify-between border-b ${isDark ? 'border-orange-500/10' : 'border-orange-200'}`}>
                 <div className="flex items-center gap-2">
                   <h3 className={`text-lg font-bold ${isDark ? 'text-white' : 'text-[#3D2817]'}`}>
-                    {isMobile ? 'Preview' : 'Resume Preview'}
+                    Resume Preview
                   </h3>
                 </div>
 
-                {/* Controls: Zoom & Downloads */}
-                <div className="flex items-center gap-2 md:gap-5">
-                  {/* Zoom Controls */}
-                  <div className={`flex items-center gap-1 md:gap-2 px-2.5 md:px-3 py-1 rounded-full border ${isDark ? 'border-orange-500/10 bg-white/5' : 'border-orange-200 bg-white/50'}`}>
-                    <button 
-                      onClick={() => setResumeZoom(z => Math.max(0.3, z - 0.1))}
-                      className={`p-1.5 rounded-full hover:scale-105 active:scale-95 transition-all ${isDark ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-black/70 hover:text-black hover:bg-black/5'}`}
-                      title="Zoom Out"
-                    >
-                      <ZoomOut size={16} />
-                    </button>
-                    <span className={`text-xs font-semibold select-none w-12 text-center ${isDark ? 'text-white/80' : 'text-[#3D2817]/80'}`}>
-                      {Math.round(resumeZoom * 100)}%
-                    </span>
-                    <button 
-                      onClick={() => setResumeZoom(z => Math.min(1.5, z + 0.1))}
-                      className={`p-1.5 rounded-full hover:scale-105 active:scale-95 transition-all ${isDark ? 'text-white/70 hover:text-white hover:bg-white/10' : 'text-black/70 hover:text-black hover:bg-black/5'}`}
-                      title="Zoom In"
-                    >
-                      <ZoomIn size={16} />
-                    </button>
-                    {!isMobile && (
-                      <button 
-                        onClick={() => {
-                          const initialZoom = window.innerWidth < 480 ? 0.4 : (window.innerWidth < 768 ? 0.55 : (window.innerWidth < 1024 ? 0.85 : 1.0));
-                          setResumeZoom(initialZoom);
-                        }}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${isDark ? 'border-white/15 text-white/55 hover:bg-white/10' : 'border-black/10 text-black/55 hover:bg-black/5'}`}
-                        title="Reset Zoom"
-                      >
-                        Reset
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Downloads: Desktop shows both directly, mobile shows a single icon that triggers a dropdown */}
-                  <div className="flex items-center gap-2">
-                    {!isMobile ? (
-                      <>
-                        {/* DOCX Download */}
-                        <a 
-                          href="/images/Vedant_Wankhade_Resume.docx"
-                          download="Vedant_Wankhade_Resume.docx"
-                          className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all duration-300 border
-                            ${isDark 
-                              ? 'border-orange-500/20 text-orange-200 hover:bg-orange-500/10' 
-                              : 'border-orange-200 text-[#8B5A3C] hover:bg-orange-100/50'}`}
-                        >
-                          <Download size={14} /> DOCX
-                        </a>
-
-                        {/* PDF Download (Print) */}
-                        <button 
-                          onClick={() => window.print()}
-                          className={`px-4 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all duration-300 border
-                            ${isDark 
-                              ? 'border-orange-500/20 text-orange-200 hover:bg-orange-500/10' 
-                              : 'border-orange-200 text-[#8B5A3C] hover:bg-orange-100/50'}`}
-                        >
-                          <Download size={14} /> PDF
-                        </button>
-                      </>
-                    ) : (
-                      /* Mobile: Single Download Icon with Dropdown */
-                      <div className="relative">
-                        <button
-                          onClick={() => setShowMobileDownloadDropdown(!showMobileDownloadDropdown)}
-                          className={`p-2 rounded-full border transition-all duration-300 flex items-center justify-center ${showMobileDownloadDropdown ? 'bg-orange-500/10 border-orange-500 text-orange-500' : (isDark ? 'border-orange-500/20 text-orange-200 hover:bg-orange-500/10' : 'border-orange-200 text-[#8B5A3C] hover:bg-orange-100/50')}`}
-                          title="Download Resume"
-                        >
-                          <Download size={16} />
-                        </button>
-                        <AnimatePresence>
-                          {showMobileDownloadDropdown && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                              transition={{ duration: 0.15 }}
-                              className={`absolute right-0 mt-2 w-32 rounded-lg shadow-lg border p-1 z-50 flex flex-col gap-1 ${isDark ? 'bg-zinc-900 border-zinc-700 text-white' : 'bg-white border-zinc-200 text-[#3D2817]'}`}
-                              style={{ transformOrigin: 'top right' }}
-                            >
-                              <a 
-                                href="/images/Vedant_Wankhade_Resume.docx"
-                                download="Vedant_Wankhade_Resume.docx"
-                                onClick={() => setShowMobileDownloadDropdown(false)}
-                                className={`px-3 py-2 rounded-md text-xs font-semibold flex items-center gap-2 transition-all w-full text-left ${isDark ? 'hover:bg-white/10 text-white' : 'hover:bg-black/5 text-[#3D2817]'}`}
-                              >
-                                <FileText size={14} /> DOCX
-                              </a>
-                              <button 
-                                onClick={() => {
-                                  setShowMobileDownloadDropdown(false);
-                                  window.print();
-                                }}
-                                className={`px-3 py-2 rounded-md text-xs font-semibold flex items-center gap-2 transition-all w-full text-left ${isDark ? 'hover:bg-white/10 text-white' : 'hover:bg-black/5 text-[#3D2817]'}`}
-                              >
-                                <FileIcon size={14} /> PDF
-                              </button>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    )}
-                  </div>
+                <div className="flex items-center gap-2">
+                  {/* PDF Download */}
+                  <a 
+                    href="/images/Vedant_Wankhade_Resume.pdf"
+                    download="Vedant_Wankhade_Resume.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`rounded-full font-semibold flex items-center justify-center gap-1.5 transition-all duration-300 border
+                      ${isMobile ? 'p-2' : 'px-4 py-1.5 text-xs'}
+                      ${isDark 
+                        ? 'border-orange-500/20 text-orange-200 hover:bg-orange-500/10' 
+                        : 'border-orange-200 text-[#8B5A3C] hover:bg-orange-100/50'}`}
+                    title="Download PDF"
+                  >
+                    <Download size={isMobile ? 16 : 14} />
+                    {!isMobile && <span>Download PDF</span>}
+                  </a>
 
                   {/* Close Button */}
                   <button 
@@ -3878,157 +3849,13 @@ export function Portfolio() {
                 </div>
               </div>
 
-              {/* Modal Body - Scrollable sheet viewport */}
-              <div className={`flex-1 overflow-auto p-8 max-md:p-4 flex justify-center items-start ${isDark ? 'bg-black/40' : 'bg-black/5'}`}>
-                <div 
-                  className="transition-all duration-200 origin-top"
-                  style={{ 
-                    transform: `scale(${resumeZoom})`, 
-                    transformOrigin: 'top center',
-                    marginBottom: `${(resumeZoom - 1) * 1050}px`,
-                    marginRight: `${(resumeZoom - 1) * 400}px`,
-                    marginLeft: `${(resumeZoom - 1) * 400}px`
-                  }}
-                >
-                  {/* The Resume Sheet Container */}
-                  <div className="resume-print-area bg-white text-[#111111] p-12 max-md:p-6 shadow-2xl rounded-lg w-[800px] min-h-[1050px] flex flex-col text-left font-sans text-[13px] leading-[1.4] select-text">
-                    {/* Header */}
-                    <div className="text-center border-b pb-4 mb-4">
-                      <h1 className="text-2xl font-black tracking-tight text-[#000000] m-0">VEDANT WANKHADE</h1>
-                      <p className="text-[12px] font-bold text-orange-600 tracking-wider uppercase mt-1">Full Stack Developer (MERN)</p>
-                      <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[11px] text-[#555555] mt-2 font-medium">
-                        <span>+91 9175988560</span>
-                        <span>•</span>
-                        <a href="mailto:vedantwankhade47@gmail.com" className="hover:underline hover:text-[#000000]">vedantwankhade47@gmail.com</a>
-                        <span>•</span>
-                        <span>Amravati, Maharashtra</span>
-                      </div>
-                      <div className="flex items-center justify-center gap-3 text-[11px] text-[#555555] mt-1 font-medium">
-                        <a href="https://linkedin.com/in/vedant-wankhade123" target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-[#000000]">LinkedIn: linkedin.com/in/vedant-wankhade123</a>
-                        <span>|</span>
-                        <a href="https://github.com/vedantwankhade123" target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-[#000000]">GitHub: github.com/vedantwankhade123</a>
-                      </div>
-                    </div>
-
-                    {/* Summary */}
-                    <div className="mb-4">
-                      <h2 className="text-[12px] font-bold tracking-widest text-[#000000] border-b pb-0.5 mb-1.5 uppercase">Summary</h2>
-                      <p className="text-[#333333] m-0 text-justify">
-                        Final-year B.Tech CSE student at G.H. Raisoni University, Amravati, specializing in Full Stack Development (MERN). Currently completing the 7-month Cohort 3.0 – Job Ready AI Powered Full Stack Web Development course by Sheryians Coding School. Proven ability to build AI-integrated web applications and deliver client projects; recognized at a national-level hackathon and two university competitions.
-                      </p>
-                    </div>
-
-                    {/* Technical Skills */}
-                    <div className="mb-4">
-                      <h2 className="text-[12px] font-bold tracking-widest text-[#000000] border-b pb-0.5 mb-1.5 uppercase">Technical Skills</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 text-[#333333]">
-                        <div><span className="font-bold text-[#000000]">Frontend:</span> React.js, HTML5, CSS3, Tailwind CSS, TypeScript, Vite</div>
-                        <div><span className="font-bold text-[#000000]">Backend:</span> Node.js, Express.js, REST APIs</div>
-                        <div><span className="font-bold text-[#000000]">Databases:</span> MongoDB, Firebase Firestore (NoSQL), SQL</div>
-                        <div><span className="font-bold text-[#000000]">Languages:</span> JavaScript (ES6+), TypeScript, Python</div>
-                        <div><span className="font-bold text-[#000000]">AI & APIs:</span> Google Gemini API, AI Agents, Web Speech API, OpenStreetMap, Computer Vision</div>
-                        <div><span className="font-bold text-[#000000]">Tools:</span> Git, GitHub, Firebase, Docker (learning)</div>
-                        <div className="md:col-span-2"><span className="font-bold text-[#000000]">DSA:</span> Data Structures & Algorithms – JavaScript & Python</div>
-                      </div>
-                    </div>
-
-                    {/* Projects */}
-                    <div className="mb-4">
-                      <h2 className="text-[12px] font-bold tracking-widest text-[#000000] border-b pb-0.5 mb-1.5 uppercase">Projects</h2>
-                      
-                      {/* Project 1: HealBook */}
-                      <div className="mb-3">
-                        <div className="flex items-baseline justify-between">
-                          <span className="font-bold text-[#000000] text-sm">HealBook – AI-Powered Healthcare & Appointment Platform</span>
-                          <span className="text-[11px] text-[#555555] font-semibold">Personal Project | 2025</span>
-                        </div>
-                        <div className="text-[11px] text-[#555555] font-semibold italic mb-1">
-                          Stack: React.js, Node.js, Express.js, MongoDB, Google Gemini API, Web Speech API
-                        </div>
-                        <ul className="list-disc list-outside pl-4 m-0 space-y-0.5 text-[#333333]">
-                          <li>Built a full-stack healthcare platform with AI-powered symptom identification, doctor appointment booking, and an AI agent for conversational task completion.</li>
-                          <li>Implemented real-time voice-based AI doctor consultations – patients speak, AI doctor responds with synthesized voice using Web Speech API and LLM integration.</li>
-                          <li>Repository: <a href="https://github.com/vedantwankhade123/healbook" target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline font-semibold">github.com/vedantwankhade123/healbook</a></li>
-                        </ul>
-                      </div>
-
-                      {/* Project 2: Ekdanta */}
-                      <div>
-                        <div className="flex items-baseline justify-between">
-                          <span className="font-bold text-[#000000] text-sm">Ekdanta – E-Commerce Website</span>
-                          <span className="text-[11px] text-[#555555] font-semibold">Client Project | 2025</span>
-                        </div>
-                        <div className="text-[11px] text-[#555555] font-semibold italic mb-1">
-                          Stack: React.js, Node.js, Firebase, Tailwind CSS
-                        </div>
-                        <ul className="list-disc list-outside pl-4 m-0 space-y-0.5 text-[#333333]">
-                          <li>Developed and deployed a fully functional e-commerce web application for a client, featuring product listings, cart management, and a responsive UI.</li>
-                          <li>Handled complete project lifecycle from requirement gathering to production deployment on Firebase Hosting.</li>
-                          <li>Repository: <a href="https://github.com/vedantwankhade123/ekdanta-ecommerce" target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline font-semibold">github.com/vedantwankhade123/ekdanta-ecommerce</a> | Live: <a href="https://ekdanta-c4074.web.app/" target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline font-semibold">ekdanta-c4074.web.app/</a></li>
-                        </ul>
-                      </div>
-                    </div>
-
-                    {/* Education */}
-                    <div className="mb-4">
-                      <h2 className="text-[12px] font-bold tracking-widest text-[#000000] border-b pb-0.5 mb-1.5 uppercase">Education</h2>
-                      <div className="space-y-2">
-                        <div className="flex items-baseline justify-between">
-                          <div>
-                            <span className="font-bold text-[#000000]">B.Tech – Computer Science & Engineering</span>
-                            <span className="text-[#333333]"> | G.H. Raisoni University, Amravati</span>
-                          </div>
-                          <span className="text-[11px] text-[#555555] font-semibold">July 2023 – July 2027</span>
-                        </div>
-                        <div className="text-[11px] text-[#555555] pl-4">
-                          Final Year (4th Year) | Focus: Web Development, AI, Data Science, DBMS
-                        </div>
-                        
-                        <div className="flex items-baseline justify-between">
-                          <div>
-                            <span className="font-bold text-[#000000]">HSC (PCM) – 61%</span>
-                            <span className="text-[#333333]"> | P.R. Pote Patil Junior College, Amravati</span>
-                          </div>
-                          <span className="text-[11px] text-[#555555] font-semibold">Feb 2022 – March 2023</span>
-                        </div>
-                        
-                        <div className="flex items-baseline justify-between">
-                          <div>
-                            <span className="font-bold text-[#000000]">SSC – 97%</span>
-                            <span className="text-[#333333]"> | Prabodhan Vidyalaya, Daryapur</span>
-                          </div>
-                          <span className="text-[11px] text-[#555555] font-semibold">March 2020 – March 2021</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Certifications */}
-                    <div className="mb-4">
-                      <h2 className="text-[12px] font-bold tracking-widest text-[#000000] border-b pb-0.5 mb-1.5 uppercase">Certifications & Courses</h2>
-                      <div className="flex items-baseline justify-between">
-                        <div>
-                          <span className="font-bold text-[#000000]">Cohort 3.0 – Full Stack Web Development Course</span>
-                          <span className="text-[#333333]"> | Sheryians Coding School</span>
-                        </div>
-                        <span className="text-[11px] text-[#555555] font-semibold">2024 – Present</span>
-                      </div>
-                      <div className="text-[11px] text-[#555555] pl-4">
-                        7-month Job Ready AI Powered cohort covering Full Stack Web Development (MERN), DSA in JavaScript, AI Engineering, DevOps, System Design, and real-world project building.
-                      </div>
-                    </div>
-
-                    {/* Achievements */}
-                    <div>
-                      <h2 className="text-[12px] font-bold tracking-widest text-[#000000] border-b pb-0.5 mb-1.5 uppercase">Achievements</h2>
-                      <ul className="list-disc list-outside pl-4 m-0 space-y-0.5 text-[#333333]">
-                        <li><span className="font-bold text-[#000000]">Consolation Prize</span> – HackGenX 2026, National Level Hackathon, Sipna College of Engineering & Technology, Amravati (AI-Powered Leak & Anomaly Detection in Urban Water Infrastructure, Feb 26–27, 2026).</li>
-                        <li><span className="font-bold text-[#000000]">3rd Place</span> – Paper Presentation, MACCS-2024 International Conference, G.H. Raisoni University, Amravati (May 2024).</li>
-                        <li><span className="font-bold text-[#000000]">3rd Prize</span> – Circuitron Circuit Making Competition, EXTC Dept., G.H. Raisoni University, Amravati.</li>
-                        <li><span className="font-bold text-[#000000]">Participation Certificate</span> – Rackathon Hackathon, G.H. Raisoni University, Amravati.</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
+              {/* Modal Body - PDF Iframe Viewer */}
+              <div className={`flex-1 overflow-auto p-4 flex justify-center items-center ${isDark ? 'bg-black/40' : 'bg-black/5'}`}>
+                <iframe 
+                  src="/images/Vedant_Wankhade_Resume.pdf"
+                  className="w-full max-w-[900px] h-[75vh] bg-white rounded-lg shadow-2xl border-none"
+                  title="Resume PDF Preview"
+                />
               </div>
             </motion.div>
           </motion.div>
