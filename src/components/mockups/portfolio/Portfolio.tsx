@@ -420,6 +420,7 @@ export function Portfolio() {
   // Bento layout state
   const [bentoImageIndices, setBentoImageIndices] = useState<number[]>(ACHIEVEMENT_IMAGES.map(() => 0));
   const [expandedAchievement, setExpandedAchievement] = useState(-1);
+  const [expandedProjectIndex, setExpandedProjectIndex] = useState(-1);
   const [expandedImgIndex, setExpandedImgIndex] = useState(0);
   const [isDesktopMenuOpen, setIsDesktopMenuOpen] = useState(false);
   const [isTourPlaying, setIsTourPlaying] = useState(false);
@@ -2738,7 +2739,7 @@ export function Portfolio() {
                           </div>
 
                           {/* Socials & Resume Call-to-Action */}
-                          <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-orange-500/10 w-full max-md:justify-center max-md:pt-3 max-md:gap-3">
+                          <div className="hidden md:flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-orange-500/10 w-full">
                             <motion.div 
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
@@ -3050,7 +3051,7 @@ export function Portfolio() {
                     initial="initial"
                     animate="animate"
                     exit="exit"
-                    className="h-full w-full flex items-start lg:items-center justify-center p-6 md:p-12 pt-2 max-md:pt-16 max-md:pb-24 lg:pt-0 max-md:overflow-y-auto lg:overflow-hidden overflow-x-hidden relative"
+                    className="h-full w-full flex items-start lg:items-center justify-center p-2 sm:p-6 md:p-12 pt-2 max-md:pt-16 max-md:pb-24 lg:pt-0 max-md:overflow-y-auto lg:overflow-hidden overflow-x-hidden relative"
                   >
                     {/* Projects Navigation - Moved to full-width container */}
                     <div className="hidden lg:flex absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between px-6 md:px-14 z-50 pointer-events-none">
@@ -3085,14 +3086,14 @@ export function Portfolio() {
                             initial="initial"
                             animate="center"
                             exit="exit"
-                            className="flex flex-col lg:flex-row items-center gap-8 lg:gap-6 w-full max-w-6xl max-md:gap-4 max-md:-mt-10"
+                            className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 w-full max-w-6xl max-md:gap-4 max-md:-mt-10 px-2 sm:px-4"
                           >
                             {/* Left Side: Project Media */}
                             <motion.div 
                               variants={projectItemVariants}
-                              className="w-full lg:w-1/2 flex justify-center lg:justify-end min-w-0"
+                              className="w-full lg:w-1/2 flex justify-center lg:justify-start min-w-0"
                             >
-                              <div className={`relative group rounded-[2rem] max-md:rounded-[1.5rem] overflow-hidden border shadow-2xl transition-all duration-700 aspect-video w-full max-w-[520px] max-md:max-w-[280px] lg:max-w-[490px]
+                              <div className={`relative group rounded-[2rem] max-md:rounded-[1.5rem] overflow-hidden border shadow-2xl transition-all duration-700 aspect-video w-full max-w-[520px] max-md:max-w-[340px] lg:max-w-[560px]
                                 ${isDark ? 'bg-[#1A0904] border-[#2A1208]' : 'bg-white border-[#F3D5B5]'}`}
                                 style={{
                                   boxShadow: isDark ? '0 30px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)' : '0 30px 60px rgba(0,0,0,0.15)'
@@ -3192,44 +3193,56 @@ export function Portfolio() {
                             {/* Right Side: Project Info */}
                             <motion.div 
                               variants={projectStaggerVariants}
-                              className="w-full lg:w-1/2 text-center lg:text-left flex flex-col items-center lg:items-start px-4 min-w-0"
+                              className="w-full lg:w-1/2 text-center lg:text-left flex flex-col items-center lg:items-start px-4 max-md:px-0 min-w-0"
                             >
                               <motion.h3 
                                 variants={projectItemVariants}
                                 id="project-title-heading"
-                                className={`text-2xl md:text-3xl font-black tracking-tight mb-4 w-full truncate ${isDark ? 'text-[#FFEDD8]' : 'text-[#3D2817]'}`} 
+                                className={`text-lg md:text-xl font-bold tracking-tight mb-4 w-full ${isDark ? 'text-[#FFEDD8]' : 'text-[#3D2817]'}`} 
                                 title={PROJECTS[activeProjectIndex].title}
                               >
                                 {PROJECTS[activeProjectIndex].title}
                               </motion.h3>
                               <motion.p 
                                 variants={projectItemVariants}
-                                className={`text-lg md:text-xl opacity-90 leading-relaxed mb-6 max-md:mb-4 w-full line-clamp-3 ${isDark ? 'text-orange-200' : 'text-[#A47148]'}`}
+                                className={`text-xs md:text-sm opacity-90 leading-relaxed mb-6 max-md:mb-4 w-full ${isDark ? 'text-orange-200' : 'text-[#A47148]'}`}
                                 title={PROJECTS[activeProjectIndex].desc}
                               >
-                                {PROJECTS[activeProjectIndex].desc}
+                                {PROJECTS[activeProjectIndex].desc.length > 150 ? (
+                                  <>
+                                    {PROJECTS[activeProjectIndex].desc.slice(0, 150)}...
+                                    <button 
+                                      onClick={() => setExpandedProjectIndex(activeProjectIndex)}
+                                      className="text-orange-500 hover:text-orange-400 font-semibold ml-2 underline cursor-pointer inline-flex items-center gap-0.5 text-xs md:text-sm"
+                                    >
+                                      Read More
+                                    </button>
+                                  </>
+                                ) : (
+                                  PROJECTS[activeProjectIndex].desc
+                                )}
                               </motion.p>
 
                               <motion.div 
                                 variants={projectItemVariants}
-                                className="flex flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 max-md:flex-nowrap max-md:justify-center max-md:gap-2.5"
+                                className="flex flex-row items-center justify-center lg:justify-start gap-3 md:gap-4 max-md:flex-nowrap max-md:justify-center max-md:gap-2.5 max-md:w-full max-md:max-w-[340px]"
                               >
                                 {PROJECTS[activeProjectIndex].liveUrl === 'not_live' || PROJECTS[activeProjectIndex].liveUrl === '#' ? (
                                   <Button 
                                     disabled
-                                    className={`px-8 py-3 max-md:px-4 max-md:py-2.5 rounded-full text-lg font-bold flex items-center gap-2 max-md:gap-1.5 shadow-inner border transition-all duration-300 cursor-not-allowed opacity-60
+                                    className={`px-8 py-3 max-md:px-4 max-md:py-2.5 rounded-full text-lg font-bold flex items-center gap-2 max-md:gap-1.5 shadow-inner border transition-all duration-300 cursor-not-allowed opacity-60 max-md:flex-1 justify-center
                                       ${isDark ? 'bg-white/5 border-white/10 text-white/50 hover:bg-white/5' : 'bg-black/5 border-black/10 text-black/50 hover:bg-black/5'}`}
                                   >
                                     <ExternalLink size={20} className="max-md:w-4.5 max-md:h-4.5" />
                                     <span className="text-base md:text-lg">Site Unavailable</span>
                                   </Button>
                                 ) : (
-                                   <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                   <motion.div className="max-md:flex-1 flex" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                       <Button 
                                         id="project-live-btn"
                                         onClick={() => handleLiveSiteClick(PROJECTS[activeProjectIndex].liveUrl)}
                                         aria-label={`View live site for ${PROJECTS[activeProjectIndex].title}`}
-                                        className={`px-6 md:px-8 py-2 md:py-3 max-md:px-4 max-md:py-2.5 rounded-full text-base md:text-lg font-bold flex items-center gap-2 max-md:gap-1.5 shadow-xl transition-all duration-300
+                                        className={`px-6 md:px-8 py-2 md:py-3 max-md:px-4 max-md:py-2.5 rounded-full text-base md:text-lg font-bold flex items-center gap-2 max-md:gap-1.5 shadow-xl transition-all duration-300 w-full justify-center
                                           ${isDark ? 'bg-orange-600 hover:bg-orange-500 text-white' : 'bg-[#3D2817] hover:bg-[#5C3A24] text-white'}`}
                                       >
                                         <ExternalLink size={18} className="max-md:w-4.5 max-md:h-4.5" />
@@ -3242,7 +3255,7 @@ export function Portfolio() {
                                   <Button 
                                     disabled
                                     variant="outline"
-                                    className={`px-8 py-3 max-md:px-4 max-md:py-2.5 rounded-full text-lg font-bold flex items-center gap-2 max-md:gap-0 border-2 transition-all duration-300 cursor-not-allowed opacity-60
+                                    className={`px-8 py-3 max-md:px-4 max-md:py-2.5 rounded-full text-lg font-bold flex items-center gap-2 max-md:gap-0 border-2 transition-all duration-300 cursor-not-allowed opacity-60 max-md:p-2.5 max-md:w-11 max-md:h-11 max-md:rounded-full justify-center
                                       ${isDark ? 'border-white/20 text-white/70 hover:bg-transparent' : 'border-black/10 text-black/50 hover:bg-transparent'}`}
                                     title="Private Repository"
                                   >
@@ -3253,7 +3266,7 @@ export function Portfolio() {
                                   <Button 
                                     disabled
                                     variant="outline"
-                                    className={`px-8 py-3 max-md:px-4 max-md:py-2.5 rounded-full text-lg font-bold flex items-center gap-2 max-md:gap-0 border-2 transition-all duration-300 cursor-not-allowed opacity-60
+                                    className={`px-8 py-3 max-md:px-4 max-md:py-2.5 rounded-full text-lg font-bold flex items-center gap-2 max-md:gap-0 border-2 transition-all duration-300 cursor-not-allowed opacity-60 max-md:p-2.5 max-md:w-11 max-md:h-11 max-md:rounded-full justify-center
                                       ${isDark ? 'border-white/20 text-white/70 hover:bg-transparent' : 'border-black/10 text-black/50 hover:bg-transparent'}`}
                                     title="Unavailable"
                                   >
@@ -3261,11 +3274,11 @@ export function Portfolio() {
                                     <span className="hidden md:inline">Unavailable</span>
                                   </Button>
                                 ) : (
-                                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                                  <motion.div className="max-md:shrink-0 flex" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                                     <Button 
                                       onClick={() => handleGithubClick(PROJECTS[activeProjectIndex].githubUrl)}
                                       variant="outline"
-                                      className={`px-6 md:px-8 py-2 md:py-3 max-md:px-4 max-md:py-2.5 rounded-full text-base md:text-lg font-bold flex items-center gap-2 max-md:gap-0 border-2 transition-all duration-300
+                                      className={`px-6 md:px-8 py-2 md:py-3 max-md:px-4 max-md:py-2.5 rounded-full text-base md:text-lg font-bold flex items-center gap-2 max-md:gap-0 border-2 transition-all duration-300 max-md:p-2.5 max-md:w-11 max-md:h-11 max-md:rounded-full justify-center
                                         ${isDark ? 'border-orange-500/30 text-orange-200 hover:bg-orange-500/10' : 'border-[#3D2817]/20 text-[#3D2817] hover:bg-[#3D2817]/5'}`}
                                       title="Source Code"
                                     >
@@ -3795,6 +3808,128 @@ export function Portfolio() {
           </div>
         </div>
       </div>
+
+      {/* Expanded Project Modal */}
+      <AnimatePresence>
+        {expandedProjectIndex >= 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm pointer-events-auto"
+            onClick={() => setExpandedProjectIndex(-1)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              transition={{ type: 'spring', stiffness: 250, damping: 25 }}
+              className={`relative w-full max-w-sm rounded-[12px] p-5 overflow-y-auto max-h-[85vh] border shadow-2xl flex flex-col gap-4
+                ${isDark ? 'bg-[#150D08] border-orange-500/20 text-white' : 'bg-[#FFF5EC] border-orange-200 text-[#3D2817]'}`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Close button */}
+              <button
+                onClick={() => setExpandedProjectIndex(-1)}
+                className={`absolute top-3 right-3 p-1.5 rounded-full transition-all duration-200 border backdrop-blur-sm z-25
+                  ${isDark ? 'bg-white/5 hover:bg-white/10 border-white/10 text-white/80' : 'bg-black/5 hover:bg-black/10 border-black/10 text-black/80'}`}
+              >
+                <X size={16} />
+              </button>
+
+              {/* Header / Title */}
+              <div className="flex items-center gap-3 mt-1 pr-6">
+                <span className="text-2xl flex-shrink-0">{PROJECTS[expandedProjectIndex].icon}</span>
+                <h2 className={`text-base md:text-lg font-bold tracking-tight ${isDark ? 'text-[#FFEDD8]' : 'text-[#3D2817]'}`}>
+                  {PROJECTS[expandedProjectIndex].title}
+                </h2>
+              </div>
+
+              {/* Content */}
+              <div className="flex flex-col gap-3">
+                <p className={`text-xs md:text-sm font-normal leading-relaxed ${isDark ? 'text-orange-200/80' : 'text-[#5C3A24]/90'}`}>
+                  {PROJECTS[expandedProjectIndex].desc}
+                </p>
+
+                {/* Tags */}
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {PROJECTS[expandedProjectIndex].tags.map(tag => (
+                    <span 
+                      key={tag}
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-medium
+                        ${isDark ? 'bg-orange-950/30 text-orange-300/90 border border-orange-900/20' : 'bg-orange-50 text-[#3D2817]/90 border border-orange-100'}`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-row items-center gap-2 mt-2 pt-2 border-t border-dashed border-orange-500/10">
+                {PROJECTS[expandedProjectIndex].liveUrl === 'not_live' || PROJECTS[expandedProjectIndex].liveUrl === '#' ? (
+                  <Button 
+                    disabled
+                    className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-60 border
+                      ${isDark ? 'bg-white/5 border-white/10 text-white/50 animate-none' : 'bg-black/5 border-black/10 text-black/50 animate-none'}`}
+                  >
+                    <ExternalLink size={14} />
+                    <span>Site Unavailable</span>
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => {
+                      handleLiveSiteClick(PROJECTS[expandedProjectIndex].liveUrl);
+                      setExpandedProjectIndex(-1);
+                    }}
+                    className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-xl transition-all duration-300
+                      ${isDark ? 'bg-orange-600 hover:bg-orange-500 text-white' : 'bg-[#3D2817] hover:bg-[#5C3A24] text-white'}`}
+                  >
+                    <ExternalLink size={14} />
+                    <span>View Live Site</span>
+                  </Button>
+                )}
+
+                {PROJECTS[expandedProjectIndex].githubUrl === 'private' ? (
+                  <Button 
+                    disabled
+                    variant="outline"
+                    className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-60 border
+                      ${isDark ? 'border-white/10 text-white/70' : 'border-black/10 text-black/50'}`}
+                  >
+                    <Github size={14} />
+                    <span>Private Repo</span>
+                  </Button>
+                ) : PROJECTS[expandedProjectIndex].githubUrl === 'unavailable' || PROJECTS[expandedProjectIndex].githubUrl === '#' ? (
+                  <Button 
+                    disabled
+                    variant="outline"
+                    className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 cursor-not-allowed opacity-60 border
+                      ${isDark ? 'border-white/10 text-white/70' : 'border-black/10 text-black/50'}`}
+                  >
+                    <Github size={14} />
+                    <span>Code Unavailable</span>
+                  </Button>
+                ) : (
+                  <Button 
+                    onClick={() => {
+                      handleGithubClick(PROJECTS[expandedProjectIndex].githubUrl);
+                      setExpandedProjectIndex(-1);
+                    }}
+                    variant="outline"
+                    className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 border transition-all duration-300
+                      ${isDark ? 'border-white/20 text-white hover:bg-white/10' : 'border-black/25 text-[#3D2817] hover:bg-black/5'}`}
+                  >
+                    <Github size={14} />
+                    <span>Source Code</span>
+                  </Button>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Resume Preview Modal */}
       <AnimatePresence>
