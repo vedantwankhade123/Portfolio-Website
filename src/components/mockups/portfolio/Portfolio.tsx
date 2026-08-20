@@ -1,7 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { 
-  Sun, 
-  Moon, 
   Menu, 
   X, 
   ChevronDown, 
@@ -40,8 +38,6 @@ import {
   Pause
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Aurora from '../../ui/Aurora';
-import { getCloudinaryUrl } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
@@ -51,6 +47,32 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const SECTIONS = ['home', 'about', 'education', 'skills', 'projects', 'achievements'];
+
+const SECTION_VIDEO_PATHS: Record<string, string> = {
+  home: '/images/scroll-01-home.mp4',
+  about: '/images/scroll-02-about.mp4',
+  skills: '/images/scroll-08-skills.mp4',
+  projects: '/images/scroll-09-projects.mp4',
+  achievements: '/images/scroll-10-achievements.mp4',
+};
+
+const EDUCATION_VIDEO_PATHS = [
+  '/images/scroll-03-education-departure.mp4',
+  '/images/scroll-04-education-10th.mp4',
+  '/images/scroll-05-education-11th.mp4',
+  '/images/scroll-06-education-12th.mp4',
+  '/images/scroll-07-education-btech.mp4',
+];
+
+const EDUCATION_VIDEO_RANGES = [0, 0.08, 0.29, 0.54, 0.79, 1];
+
+const ABOUT_HIGHLIGHTS = [
+  { label: 'Average semester GPA', value: '8.82', description: 'Consistent academic performance', icon: GraduationCap },
+  { label: 'Projects built', value: '10+', description: 'Full-stack and AI products', icon: Terminal },
+  { label: 'Hackathons', value: '5+', description: 'State and national competitions', icon: Trophy },
+];
+const ABOUT_SUMMARY = 'Full Stack Developer with a strong foundation in modern web development and a growing interest in AI-powered applications. I enjoy building scalable, real-world solutions—from intelligent agents to complete web platforms—using the MERN stack and modern APIs. Continuously exploring new technologies, I aim to grow into a proficient full-stack developer who builds impactful, production-ready products.';
+const ABOUT_STAGE_COUNT = 4;
 
 const SKILLS_DATA = [
   { name: 'React', icon: 'devicon-react-original', color: '#61DAFB', category: 'Frontend' },
@@ -74,9 +96,10 @@ const CERTIFICATES_DATA = [
   {
     title: "Python - Beginner to Master",
     instructors: ["Abdul Bari"],
+    issuerLabel: "Instructor",
     platform: "Udemy",
     date: "April 2, 2025",
-    image: getCloudinaryUrl("/images/Python.jpg"),
+    image: "/images/Python.webp",
     credentialId: "UC-914a488d-bd1d-4118-8806-3a85c3acf6c4",
     credentialUrl: "https://ude.my/UC-914a488d-bd1d-4118-8806-3a85c3acf6c4",
     associatedSkills: ['Python', 'SQL', 'Git'],
@@ -86,6 +109,22 @@ const CERTIFICATES_DATA = [
       "Conditional and Loop Statements",
       "Exception Handling & Multithreaded Programs",
       "Functional & Object-Oriented Programming"
+    ]
+  },
+  {
+    title: "JavaScript (Basic)",
+    instructors: ["HackerRank"],
+    issuerLabel: "Issued by",
+    platform: "HackerRank",
+    date: "July 14, 2026",
+    image: "/images/js certificate.webp",
+    credentialId: "7A7BBE8F4373",
+    credentialUrl: "https://www.hackerrank.com/certificates/7a7bbe8f4373",
+    associatedSkills: ['JavaScript'],
+    content: [
+      "Functions, Currying & Hoisting",
+      "Scope, Inheritance & Events",
+      "Error Handling & Coding Challenges"
     ]
   }
 ];
@@ -130,7 +169,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">🩺</span>,
     gradient: 'from-[#FF8C42] to-[#993300]',
     video: '',
-    thumbnail: getCloudinaryUrl('/images/healbook.jpg'),
+    thumbnail: '/images/healbook.webp',
     objectFit: 'contain',
     liveUrl: 'not_live',
     githubUrl: 'https://github.com/vedantwankhade123/healbook'
@@ -142,7 +181,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">🛍️</span>,
     gradient: 'from-[#8B5A3C] to-[#4D1A00]',
     video: '',
-    thumbnail: getCloudinaryUrl('/images/ekdanta.png'),
+    thumbnail: '/images/ekdanta.webp',
     objectFit: 'contain',
     liveUrl: 'https://ekdanta-c4074.web.app/',
     githubUrl: 'https://github.com/vedantwankhade123/ekdanta-ecommerce'
@@ -154,7 +193,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">✨</span>,
     gradient: 'from-[#6F4830] to-[#3D2817]',
     video: 'https://www.youtube.com/embed/KNsh4871Ke8?si=dPX2Q_iLSYGgQMTk&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=KNsh4871Ke8',
-    thumbnail: getCloudinaryUrl('/images/eph.png'),
+    thumbnail: '/images/eph.webp',
     liveUrl: 'https://engineeringprojecthub.online',
     githubUrl: 'private'
   },
@@ -165,7 +204,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">🤖</span>,
     gradient: 'from-[#5C3A24] to-[#8B5A3C]',
     video: 'https://www.youtube.com/embed/g5Jm7cfGxOI?si=82K-R0Wy7nhCeweE&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=g5Jm7cfGxOI',
-    thumbnail: getCloudinaryUrl('/images/drawgit.jpg'),
+    thumbnail: '/images/drawgit.webp',
     liveUrl: 'https://drawgit.netlify.app/',
     githubUrl: 'https://github.com/vedantwankhade123/drawgit.git'
   },
@@ -176,7 +215,7 @@ const PROJECTS = [
     icon: <span className="text-4xl">🌤️</span>,
     gradient: 'from-[#3D2817] to-[#6F4830]',
     video: 'https://www.youtube.com/embed/M7qJBLAaquA?si=dG6yznPgrNTtfgsj&mute=1&controls=0&modestbranding=1&rel=0&loop=1&playlist=M7qJBLAaquA',
-    thumbnail: getCloudinaryUrl('/images/neucv.png'),
+    thumbnail: '/images/neucv.webp',
     liveUrl: 'not_live',
     githubUrl: 'unavailable'
   }
@@ -238,35 +277,35 @@ const ACHIEVEMENT_IMAGES = [
     title: "HackGenX 2026", 
     subtitle: "Consolation Prize (AI Project)",
     description: "Developed an AI-powered leak and anomaly detection system for urban water infrastructure, earning recognition at a national-level hackathon.",
-    images: ["/images/HGX.png", "/images/Hack.jpg", "/images/gen.jpg"].map(getCloudinaryUrl), 
+    images: ["/images/HGX.webp", "/images/Hack.webp", "/images/gen.webp"], 
     isVertical: true
   },
   { 
     title: "Codorithm 2K25", 
     subtitle: "State-Level Coding Competition",
     description: "Participated in a state-level coding competition, enhancing problem-solving, algorithmic thinking, and competitive programming skills in a high-pressure environment.",
-    images: ["/images/COC.jpg"].map(getCloudinaryUrl), 
+    images: ["/images/COC.webp"], 
     isVertical: false
   },
   { 
     title: "Research Poster Presentation – 3rd Rank", 
     subtitle: "International Conference (MACCS-2024)",
     description: "Presented a research poster at an international conference and secured 3rd rank, demonstrating strong communication, innovation, and technical presentation skills.",
-    images: ["/images/RPP.jpg"].map(getCloudinaryUrl), 
+    images: ["/images/RPP.webp"], 
     isVertical: true
   },
   { 
     title: "Circuitron 2024", 
     subtitle: "2nd Winner (Electronics Competition)",
     description: "Secured 2nd place in Circuitron 2024 at G H Raisoni University by designing and developing electronic circuit solutions across multiple competitive rounds, demonstrating strong problem-solving and hardware skills.",
-    images: ["/images/circuitron.jpg", "/images/CEC.jpg"].map(getCloudinaryUrl), 
+    images: ["/images/circuitron.webp", "/images/CEC.webp"], 
     isVertical: true 
   },
   { 
     title: "Rackathon 2024", 
     subtitle: "Innovation & Design Competition",
     description: "Actively participated in a national-level innovation competition, working on creative problem-solving and product design thinking.",
-    images: ["/images/rackathon.jpg", "/images/RAC.png"].map(getCloudinaryUrl), 
+    images: ["/images/rackathon.webp", "/images/RAC.webp"], 
     isVertical: false
   }
 ];
@@ -368,7 +407,7 @@ const AnimatedTypewriter = ({ text, delay = 0, className = "" }: { text: string,
 
 export function Portfolio() {
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 1024;
-  const [isDark, setIsDark] = useState(true);
+  const isDark = true;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [isScrolling, setIsScrolling] = useState(false);
@@ -397,28 +436,10 @@ export function Portfolio() {
   const [isAchievementDescOpen, setIsAchievementDescOpen] = useState(false);
   const [resumeToast, setResumeToast] = useState<'idle' | 'unavailable'>('idle');
   const [isResumePreviewOpen, setIsResumePreviewOpen] = useState(false);
-  const [showMobileDownloadDropdown, setShowMobileDownloadDropdown] = useState(false);
-  const [resumeZoom, setResumeZoom] = useState(() => {
-    if (typeof window !== 'undefined') {
-      if (window.innerWidth < 480) return 0.4;
-      if (window.innerWidth < 768) return 0.55;
-      if (window.innerWidth < 1024) return 0.85;
-    }
-    return 1.0;
-  });
-
-  useEffect(() => {
-    if (isResumePreviewOpen) {
-      const initialZoom = window.innerWidth < 480 ? 0.4 : (window.innerWidth < 768 ? 0.55 : (window.innerWidth < 1024 ? 0.85 : 1.0));
-      setResumeZoom(initialZoom);
-    } else {
-      setShowMobileDownloadDropdown(false);
-    }
-  }, [isResumePreviewOpen]);
   const [selectedAchievementImg, setSelectedAchievementImg] = useState<string | null>(null);
   const [mobileAchievementSubIndex, setMobileAchievementSubIndex] = useState(0);
   // Bento layout state
-  const [bentoImageIndices, setBentoImageIndices] = useState<number[]>(ACHIEVEMENT_IMAGES.map(() => 0));
+  const [bentoImageIndices] = useState<number[]>(ACHIEVEMENT_IMAGES.map(() => 0));
   const [expandedAchievement, setExpandedAchievement] = useState(-1);
   const [expandedProjectIndex, setExpandedProjectIndex] = useState(-1);
   const [expandedImgIndex, setExpandedImgIndex] = useState(0);
@@ -462,29 +483,51 @@ export function Portfolio() {
   }, [showTourTooltip]);
 
   const [tourTime, setTourTime] = useState(0);
-  const [tourDuration, setTourDuration] = useState(0);
   const [virtualCursor, setVirtualCursor] = useState({ x: 500, y: 300, visible: false, clicking: false });
   const tourAudioRef = useRef<HTMLAudioElement | null>(null);
   const lastTourMilestoneRef = useRef<number>(-1);
   const [educationScrollEl, setEducationScrollEl] = useState<HTMLDivElement | null>(null);
   const [canvasEl, setCanvasEl] = useState<HTMLCanvasElement | null>(null);
+  const backgroundVideoRef = useRef<HTMLVideoElement | null>(null);
+  const [educationVideoSegment, setEducationVideoSegment] = useState(0);
+  const educationVideoSegmentRef = useRef(0);
+  const [videoPlayback, setVideoPlayback] = useState({ src: '', progress: 0 });
+  const sectionScrubProgressRef = useRef(0);
+  const aboutScrollLockedRef = useRef(false);
+  const aboutEnteredAtRef = useRef(0);
+  const aboutWheelDeltaRef = useRef(0);
+  const aboutScrollUnlockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const achievementScrollLockedRef = useRef(false);
+  const achievementStageChangedAtRef = useRef(0);
+  const achievementEnteredAtRef = useRef(0);
+  const achievementWheelDeltaRef = useRef(0);
+  const achievementScrollUnlockTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentCert = CERTIFICATES_DATA[activeCertIndex] || CERTIFICATES_DATA[0];
+  const activeBackgroundVideo = activeSection === 'education'
+    ? EDUCATION_VIDEO_PATHS[educationVideoSegment]
+    : SECTION_VIDEO_PATHS[activeSection] || SECTION_VIDEO_PATHS.home;
+  const backgroundVideoProgress = videoPlayback.src === activeBackgroundVideo
+    ? videoPlayback.progress
+    : 0;
+  const scrollAchievementIndex = Math.min(
+    ACHIEVEMENT_IMAGES.length - 1,
+    Math.floor(backgroundVideoProgress * ACHIEVEMENT_IMAGES.length)
+  );
+  const aboutStageIndex = Math.min(ABOUT_STAGE_COUNT - 1, Math.floor(backgroundVideoProgress * ABOUT_STAGE_COUNT));
 
-  // Auto-cycle images in each bento card independently
   useEffect(() => {
-    if (activeSection !== 'achievements') return undefined;
-    const intervals = ACHIEVEMENT_IMAGES.map((ach, idx) => {
-      if (ach.images.length <= 1) return null;
-      return setInterval(() => {
-        setBentoImageIndices(prev => {
-          const next = [...prev];
-          next[idx] = (next[idx] + 1) % ach.images.length;
-          return next;
-        });
-      }, 3000 + idx * 500); // stagger intervals so cards don't all flip at once
-    });
-    return () => intervals.forEach(i => i && clearInterval(i));
-  }, [activeSection]);
+    if (activeSection !== 'about' && activeSection !== 'achievements') return;
+    const initialProgress = direction < 0 ? 1 : 0;
+    sectionScrubProgressRef.current = initialProgress;
+    setVideoPlayback({ src: activeBackgroundVideo, progress: initialProgress });
+    if (activeSection === 'about') {
+      aboutEnteredAtRef.current = Date.now();
+      aboutWheelDeltaRef.current = 0;
+    } else if (activeSection === 'achievements') {
+      achievementEnteredAtRef.current = Date.now();
+      achievementWheelDeltaRef.current = 0;
+    }
+  }, [activeBackgroundVideo, activeSection, direction]);
 
   const handleNextAchievement = () => {
     setDirection(1);
@@ -515,15 +558,12 @@ export function Portfolio() {
       tourAudioRef.current.pause();
     }
     
-    const audio = new Audio(getCloudinaryUrl('/Voice-Tour.mp3'));
+    const audio = new Audio('/Voice-Tour.mp3');
     audio.currentTime = 0;
     tourAudioRef.current = audio;
     
     audio.addEventListener('timeupdate', () => {
       setTourTime(audio.currentTime);
-    });
-    audio.addEventListener('durationchange', () => {
-      setTourDuration(audio.duration);
     });
     audio.addEventListener('ended', () => {
       exitTour();
@@ -566,21 +606,6 @@ export function Portfolio() {
     lastTourMilestoneRef.current = -1;
   };
 
-  const handleTourScrub = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = parseFloat(e.target.value);
-    setTourTime(time);
-    const audio = tourAudioRef.current;
-    if (audio) {
-      audio.currentTime = time;
-    }
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
   // 1. Sync section navigation and modal views based on Tour playback time
   useEffect(() => {
     if (!isTourPlaying) return;
@@ -589,6 +614,9 @@ export function Portfolio() {
       if (activeSection !== 'home') handleNavClick('home');
     } else if (tourTime >= 15 && tourTime < 32) {
       if (activeSection !== 'about') handleNavClick('about');
+      const aboutProgress = Math.max(0, Math.min(1, (tourTime - 15) / 17));
+      sectionScrubProgressRef.current = aboutProgress;
+      setVideoPlayback({ src: SECTION_VIDEO_PATHS.about, progress: aboutProgress });
     } else if (tourTime >= 32 && tourTime < 48) {
       if (activeSection !== 'education') handleNavClick('education');
       if (educationScrollEl) {
@@ -662,10 +690,7 @@ export function Portfolio() {
     } else if (tourTime >= 4 && tourTime < 6) {
       selector = '#nav-about-btn';
     } else if (tourTime >= 15 && tourTime < 32) {
-      if (tourTime < 19) selector = '#stat-card-0';
-      else if (tourTime < 22) selector = '#stat-card-1';
-      else if (tourTime < 25) selector = '#stat-card-2';
-      else selector = '#stat-card-3';
+      selector = '#about-stage-content';
     } else if (tourTime >= 32 && tourTime < 48) {
       selector = '.scroll-track';
     } else if (tourTime >= 48 && tourTime < 65) {
@@ -725,6 +750,23 @@ export function Portfolio() {
   const lastProgressUpdateRef = useRef(0);
   const activeEduIndexRef = useRef(0);
   const scrollbarRef = useRef<HTMLDivElement>(null);
+
+  const updateEducationVideo = useCallback((progress: number) => {
+    const clampedProgress = Math.max(0, Math.min(1, progress));
+    let segment = EDUCATION_VIDEO_PATHS.length - 1;
+
+    for (let index = 0; index < EDUCATION_VIDEO_PATHS.length; index += 1) {
+      if (clampedProgress < EDUCATION_VIDEO_RANGES[index + 1]) {
+        segment = index;
+        break;
+      }
+    }
+
+    if (educationVideoSegmentRef.current !== segment) {
+      educationVideoSegmentRef.current = segment;
+      setEducationVideoSegment(segment);
+    }
+  }, []);
 
   useEffect(() => {
     isDraggingRef.current = isDragging;
@@ -790,10 +832,8 @@ export function Portfolio() {
     setIsProjectPlaying(false);
   }, [activeProjectIndex]);
 
-  const toggleTheme = () => setIsDark(!isDark);
-
   const handleResumeDownload = async () => {
-    const RESUME_PATH = '/resume.pdf';
+    const RESUME_PATH = '/images/Vedant_Wankhade_Resume.pdf';
     try {
       const res = await fetch(RESUME_PATH, { method: 'HEAD' });
       if (res.ok) {
@@ -867,8 +907,140 @@ export function Portfolio() {
       if (isScrolling || isScrollingRef.current) return;
 
       const currentIndex = SECTIONS.indexOf(activeSection);
+      const isCinematicScrubSection = activeSection === 'about' || activeSection === 'achievements';
 
-      if (e.deltaY > 50) {
+      if (isCinematicScrubSection && Math.abs(e.deltaY) > 1) {
+        const currentProgress = sectionScrubProgressRef.current;
+
+        if (activeSection === 'about') {
+          e.preventDefault?.();
+
+          if (Date.now() - aboutEnteredAtRef.current < 900) {
+            aboutWheelDeltaRef.current = 0;
+            return;
+          }
+
+          const currentStage = Math.min(
+            ABOUT_STAGE_COUNT - 1,
+            Math.floor(currentProgress * ABOUT_STAGE_COUNT)
+          );
+
+          if (aboutScrollLockedRef.current) {
+            if (aboutScrollUnlockTimerRef.current) {
+              clearTimeout(aboutScrollUnlockTimerRef.current);
+            }
+            aboutScrollUnlockTimerRef.current = setTimeout(() => {
+              aboutScrollLockedRef.current = false;
+              aboutWheelDeltaRef.current = 0;
+            }, 300);
+            return;
+          }
+
+          aboutWheelDeltaRef.current += e.deltaY;
+          if (Math.abs(aboutWheelDeltaRef.current) < 35) return;
+
+          const scrollDirection = Math.sign(aboutWheelDeltaRef.current);
+          aboutWheelDeltaRef.current = 0;
+          const canAdvance = scrollDirection > 0 && currentStage < ABOUT_STAGE_COUNT - 1;
+          const canRewind = scrollDirection < 0 && currentStage > 0;
+
+          if (canAdvance || canRewind) {
+            const targetStage = currentStage + scrollDirection;
+            const nextProgress = (targetStage + 0.5) / ABOUT_STAGE_COUNT;
+
+            aboutScrollLockedRef.current = true;
+            sectionScrubProgressRef.current = nextProgress;
+            setVideoPlayback({ src: activeBackgroundVideo, progress: nextProgress });
+
+            if (aboutScrollUnlockTimerRef.current) {
+              clearTimeout(aboutScrollUnlockTimerRef.current);
+            }
+            aboutScrollUnlockTimerRef.current = setTimeout(() => {
+              aboutScrollLockedRef.current = false;
+              aboutWheelDeltaRef.current = 0;
+            }, 300);
+            return;
+          }
+
+          if (scrollDirection > 0 && currentStage === ABOUT_STAGE_COUNT - 1) {
+            setDirection(1);
+            setIsScrolling(true);
+            isScrollingRef.current = true;
+            setActiveSection(SECTIONS[currentIndex + 1]);
+            setTimeout(() => {
+              setIsScrolling(false);
+              isScrollingRef.current = false;
+            }, 650);
+            return;
+          }
+
+          if (scrollDirection < 0 && currentStage === 0) {
+            setDirection(-1);
+            setIsScrolling(true);
+            isScrollingRef.current = true;
+            setActiveSection(SECTIONS[currentIndex - 1]);
+            setTimeout(() => {
+              setIsScrolling(false);
+              isScrollingRef.current = false;
+            }, 650);
+            return;
+          }
+        }
+
+        if (activeSection === 'achievements') {
+          e.preventDefault?.();
+
+          if (Date.now() - achievementEnteredAtRef.current < 900) {
+            achievementWheelDeltaRef.current = 0;
+            return;
+          }
+
+          const currentAchievement = Math.min(
+            ACHIEVEMENT_IMAGES.length - 1,
+            Math.floor(currentProgress * ACHIEVEMENT_IMAGES.length)
+          );
+
+          if (achievementScrollLockedRef.current) {
+            if (achievementScrollUnlockTimerRef.current) {
+              clearTimeout(achievementScrollUnlockTimerRef.current);
+            }
+            achievementScrollUnlockTimerRef.current = setTimeout(() => {
+              achievementScrollLockedRef.current = false;
+              achievementWheelDeltaRef.current = 0;
+            }, Math.max(350, 1200 - (Date.now() - achievementStageChangedAtRef.current)));
+            return;
+          }
+
+          achievementWheelDeltaRef.current += e.deltaY;
+          if (Math.abs(achievementWheelDeltaRef.current) < 35) return;
+
+          const scrollDirection = Math.sign(achievementWheelDeltaRef.current);
+          achievementWheelDeltaRef.current = 0;
+          const canAdvance = scrollDirection > 0 && currentAchievement < ACHIEVEMENT_IMAGES.length - 1;
+          const canRewind = scrollDirection < 0 && currentAchievement > 0;
+
+          if (canAdvance || canRewind) {
+            const targetAchievement = currentAchievement + scrollDirection;
+            const nextProgress = (targetAchievement + 0.5) / ACHIEVEMENT_IMAGES.length;
+
+            achievementScrollLockedRef.current = true;
+            achievementStageChangedAtRef.current = Date.now();
+            sectionScrubProgressRef.current = nextProgress;
+            setVideoPlayback({ src: activeBackgroundVideo, progress: nextProgress });
+
+            if (achievementScrollUnlockTimerRef.current) {
+              clearTimeout(achievementScrollUnlockTimerRef.current);
+            }
+            achievementScrollUnlockTimerRef.current = setTimeout(() => {
+              achievementScrollLockedRef.current = false;
+              achievementWheelDeltaRef.current = 0;
+            }, 1200);
+            return;
+          }
+        }
+      }
+
+      if (e.deltaY > 12) {
         // Scroll Down
         if (activeSection === 'projects' && activeProjectIndex < PROJECTS.length - 1) {
           setDirection(1);
@@ -878,7 +1050,7 @@ export function Portfolio() {
           setTimeout(() => {
             setIsScrolling(false);
             isScrollingRef.current = false;
-          }, 1200);
+          }, 700);
           return;
         }
 
@@ -910,7 +1082,7 @@ export function Portfolio() {
             setTimeout(() => {
               setIsScrolling(false);
               isScrollingRef.current = false;
-            }, 1000);
+            }, 650);
             return;
           }
         }
@@ -941,9 +1113,9 @@ export function Portfolio() {
           setTimeout(() => {
             setIsScrolling(false);
             isScrollingRef.current = false;
-          }, 1000); 
+          }, 650); 
          }
-      } else if (e.deltaY < -50) {
+      } else if (e.deltaY < -12) {
         // Scroll Up
         if (activeSection === 'education') {
           const edu = educationScrollEl;
@@ -963,7 +1135,7 @@ export function Portfolio() {
           setTimeout(() => {
             setIsScrolling(false);
             isScrollingRef.current = false;
-          }, 1200);
+          }, 700);
           return;
         }
 
@@ -994,7 +1166,7 @@ export function Portfolio() {
             setTimeout(() => {
               setIsScrolling(false);
               isScrollingRef.current = false;
-            }, 1000);
+            }, 650);
             return;
           }
         }
@@ -1015,7 +1187,7 @@ export function Portfolio() {
           setTimeout(() => {
             setIsScrolling(false);
             isScrollingRef.current = false;
-          }, 1000);
+          }, 650);
         }
       }
     };
@@ -1032,15 +1204,23 @@ export function Portfolio() {
         handleWheel({ deltaY } as WheelEvent);
       }
     };
-     window.addEventListener('wheel', handleWheel);
+     window.addEventListener('wheel', handleWheel, { passive: false });
     window.addEventListener('touchstart', handleTouchStart);
     window.addEventListener('touchend', handleTouchEnd);
     return () => {
       window.removeEventListener('wheel', handleWheel);
       window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchend', handleTouchEnd);
+      if (aboutScrollUnlockTimerRef.current) {
+        clearTimeout(aboutScrollUnlockTimerRef.current);
+      }
+      aboutScrollLockedRef.current = false;
+      if (achievementScrollUnlockTimerRef.current) {
+        clearTimeout(achievementScrollUnlockTimerRef.current);
+      }
+      achievementScrollLockedRef.current = false;
     };
-  }, [activeSection, isScrolling, activeProjectIndex, activeCertIndex, activeEduIndex, educationScrollEl, skillPage]);
+  }, [activeBackgroundVideo, activeSection, isScrolling, activeProjectIndex, activeCertIndex, activeEduIndex, educationScrollEl, skillPage]);
 
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -1056,31 +1236,34 @@ export function Portfolio() {
   const pageVariants = {
     initial: (direction: number) => ({
       opacity: 0,
-      y: isMobile ? (direction > 0 ? 30 : -30) : (direction > 0 ? 100 : -100),
-      scale: isMobile ? 1 : 0.98,
+      y: isMobile ? (direction > 0 ? 24 : -24) : (direction > 0 ? 56 : -56),
+      scale: isMobile ? 1 : 0.985,
+      filter: isMobile ? "none" : "blur(8px)",
     }),
     animate: {
       opacity: 1,
       y: 0,
       scale: 1,
+      filter: "blur(0px)",
       transition: isMobile ? {
-        duration: 0.3,
-        ease: "easeOut" as any
+        duration: 0.38,
+        ease: [0.22, 1, 0.36, 1] as any
       } : { 
         type: "spring" as any,
-        stiffness: 80,
-        damping: 18,
-        mass: 0.8,
+        stiffness: 110,
+        damping: 22,
+        mass: 0.75,
         restDelta: 0.001
       }
     },
     exit: (direction: number) => ({
       opacity: 0,
-      y: isMobile ? (direction > 0 ? -30 : 30) : (direction > 0 ? -100 : 100),
-      scale: isMobile ? 1 : 0.98,
+      y: isMobile ? (direction > 0 ? -24 : 24) : (direction > 0 ? -56 : 56),
+      scale: isMobile ? 1 : 0.985,
+      filter: isMobile ? "none" : "blur(6px)",
       transition: { 
-        duration: isMobile ? 0.25 : 0.4,
-        ease: "easeInOut" as any
+        duration: isMobile ? 0.28 : 0.38,
+        ease: [0.4, 0, 0.2, 1] as any
       }
     })
   };
@@ -1137,9 +1320,19 @@ export function Portfolio() {
   };
 
   const contentVariants = {
-    initial: { opacity: 0, y: 30 },
-    animate: { opacity: 1, y: 0, transition: { duration: 0.8 } },
-    exit: { opacity: 0, y: -30, transition: { duration: 0.5 } }
+    initial: { opacity: 0, y: 24, scale: 0.99 },
+    animate: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { duration: 0.65, ease: [0.22, 1, 0.36, 1] as any }
+    },
+    exit: {
+      opacity: 0,
+      y: -20,
+      scale: 0.99,
+      transition: { duration: 0.35, ease: "easeInOut" as any }
+    }
   };
 
 
@@ -1331,22 +1524,6 @@ export function Portfolio() {
     });
   }, []);
 
-  // Preload Images
-  useEffect(() => {
-    const totalFrames = 80;
-    const loadedImages: HTMLImageElement[] = [];
-    const step = isMobile ? 3 : 1;
-    for (let i = 1; i <= totalFrames; i += step) {
-      const img = new Image();
-      const frameStr = String(i).padStart(3, '0');
-      img.src = getCloudinaryUrl(`/images/campus_frames/ezgif-frame-${frameStr}.png`);
-      // Asynchronously decode the frame in the GPU before we draw it
-      img.decode().catch(() => {});
-      loadedImages.push(img);
-    }
-    educationImagesRef.current = loadedImages;
-  }, [isMobile]);
-
   // Reset Scroll on entry
   useEffect(() => {
     if (activeSection === 'education' && educationScrollEl) {
@@ -1359,8 +1536,9 @@ export function Portfolio() {
       const p = edu.scrollTop / (edu.scrollHeight - edu.clientHeight || 1);
       localProgressRef.current = p;
       smoothProgressRef.current = p;
+      updateEducationVideo(p);
     }
-  }, [activeSection, direction, educationScrollEl]);
+  }, [activeSection, direction, educationScrollEl, updateEducationVideo]);
 
   // GSAP ScrollTrigger Scroll Sync
   useEffect(() => {
@@ -1378,6 +1556,7 @@ export function Portfolio() {
       onUpdate: (self) => {
         const p = self.progress;
         localProgressRef.current = p;
+        updateEducationVideo(p);
         
         // Throttle setScrollProgress to avoid React state reconciliation overload
         const now = Date.now();
@@ -1405,11 +1584,101 @@ export function Portfolio() {
     const initialProgress = scroller.scrollTop / (scroller.scrollHeight - scroller.clientHeight || 1);
     localProgressRef.current = initialProgress;
     smoothProgressRef.current = initialProgress;
+    updateEducationVideo(initialProgress);
     
     return () => {
       trigger.kill();
     };
-  }, [activeSection, calculateProgress, activeEduIndex, educationScrollEl]);
+  }, [activeSection, calculateProgress, activeEduIndex, educationScrollEl, updateEducationVideo]);
+
+  useEffect(() => {
+    const video = backgroundVideoRef.current;
+    if (!video) return;
+    let animationFrame = 0;
+    let cancelled = false;
+
+    video.muted = true;
+    video.volume = 0;
+
+    const isScrollControlled = activeSection === 'about' || activeSection === 'achievements';
+
+    if (!isScrollControlled) {
+      if (video.paused) {
+        void video.play().catch(() => {});
+      }
+      return;
+    }
+
+    const syncToScroll = () => {
+      video.pause();
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      const targetTime = Math.min(
+        Math.max(0, video.duration - 0.05),
+        backgroundVideoProgress * video.duration
+      );
+
+      if (Math.abs(video.currentTime - targetTime) <= 0.03) return;
+
+      if (activeSection === 'about' || activeSection === 'achievements') {
+        if (targetTime > video.currentTime) {
+          const startedAt = performance.now();
+          const startTime = video.currentTime;
+          const distance = targetTime - video.currentTime;
+          let useSeekFallback = false;
+          let lastFallbackSeekAt = 0;
+          video.playbackRate = Math.min(4, Math.max(0.25, distance));
+          void video.play().catch(() => {
+            useSeekFallback = true;
+          });
+
+          const stopAtTarget = (now: number) => {
+            if (cancelled) return;
+            const elapsed = now - startedAt;
+
+            if (!useSeekFallback && elapsed > 180 && video.currentTime <= startTime + 0.01) {
+              useSeekFallback = true;
+              video.pause();
+            }
+
+            if (useSeekFallback && now - lastFallbackSeekAt >= 32) {
+              const seekProgress = Math.min(1, elapsed / 1000);
+              video.currentTime = startTime + distance * (1 - Math.pow(1 - seekProgress, 3));
+              lastFallbackSeekAt = now;
+            }
+
+            if (video.currentTime >= targetTime - 0.03 || elapsed >= 1050) {
+              video.pause();
+              video.playbackRate = 1;
+              video.currentTime = targetTime;
+              return;
+            }
+            animationFrame = requestAnimationFrame(stopAtTarget);
+          };
+          animationFrame = requestAnimationFrame(stopAtTarget);
+        } else {
+          video.currentTime = targetTime;
+        }
+      } else {
+        video.currentTime = targetTime;
+      }
+    };
+
+    if (video.readyState >= 1) {
+      syncToScroll();
+    } else {
+      video.addEventListener('loadedmetadata', syncToScroll, { once: true });
+    }
+
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(animationFrame);
+      if (activeSection === 'about' || activeSection === 'achievements') {
+        video.pause();
+        video.playbackRate = 1;
+      }
+      video.removeEventListener('loadedmetadata', syncToScroll);
+    };
+  }, [activeBackgroundVideo, activeSection, backgroundVideoProgress]);
 
   // Card styles update loop (runs on every animation frame for smooth transition)
   useEffect(() => {
@@ -1878,102 +2147,50 @@ export function Portfolio() {
             backgroundColor: isDark ? '#0F0800' : '#FFF5EC'
           }}
         >
-          {/* Animated Aurora Gradient Background */}
-          {activeSection !== 'education' && (
-            <div className="absolute inset-0 pointer-events-none select-none overflow-hidden rounded-none lg:rounded-3xl z-0 opacity-35">
-              <Aurora
-                colorStops={isDark ? ["#FF8C42", "#8B5A3C", "#2A1208"] : ["#FFEDD8", "#F3D5B5", "#FFF5EC"]}
-                blend={0.6}
-                amplitude={1.1}
-                speed={0.4}
-              />
-            </div>
-          )}
+          {/* Local cinematic background. Education clips are scrubbed by its internal scroll. */}
+          <AnimatePresence initial={false}>
+            <motion.video
+              key={activeBackgroundVideo}
+              ref={backgroundVideoRef}
+              src={activeBackgroundVideo}
+              poster={activeSection === 'home'
+                ? (isMobile ? '/images/scroll-opening-room-mobile.webp' : '/images/scroll-opening-room.webp')
+                : undefined}
+              className="absolute inset-0 h-full w-full object-cover pointer-events-none select-none z-0"
+              initial={{ opacity: 0, scale: 1.015 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.65, ease: 'easeOut' }}
+              autoPlay={activeSection !== 'about' && activeSection !== 'achievements'}
+              muted
+              playsInline
+              preload="auto"
+              controls={false}
+              disablePictureInPicture
+              aria-hidden="true"
+              onLoadedMetadata={(event) => {
+                const video = event.currentTarget;
+                video.muted = true;
+                video.volume = 0;
+                if (activeSection === 'about' || activeSection === 'achievements') {
+                  setVideoPlayback(previous => previous.src === activeBackgroundVideo
+                    ? previous
+                    : { src: activeBackgroundVideo, progress: 0 });
+                }
+              }}
+              onError={() => {
+                if (activeSection === 'about' || activeSection === 'achievements') {
+                  setVideoPlayback({ src: activeBackgroundVideo, progress: 1 });
+                }
+              }}
+            />
+          </AnimatePresence>
+          <div
+            className={`absolute inset-0 z-[1] pointer-events-none transition-colors duration-700 ${
+              isDark || activeSection === 'education' ? 'bg-black/55' : 'bg-[#FFF5EC]/60'
+            }`}
+          />
           
-          {/* Global Viewport Background Image with Scroll Transition */}
-          <motion.div
-            className="absolute inset-0 z-0 pointer-events-none select-none overflow-hidden rounded-none lg:rounded-3xl"
-            initial={{ opacity: 0, scale: 1.15, y: 0 }}
-            animate={{
-              opacity: activeSection === 'home' ? 1 : 0,
-              scale: activeSection === 'home' ? 1 : 1.08,
-              y: activeSection === 'home' ? 0 : (direction > 0 ? -80 : 80),
-            }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] as any }}
-          >
-            {/* Sun Celestial Body */}
-            <motion.div
-              className="absolute rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 w-[110px] h-[110px] left-1/2 ml-[-55px] top-[33%] md:w-[160px] md:h-[160px] md:left-[60%] md:ml-0 md:top-[20%]"
-              style={{
-                filter: 'blur(4px)',
-                boxShadow: '0 0 60px #f59e0b, 0 0 120px #f97316, 0 0 200px rgba(245, 158, 11, 0.6)',
-              }}
-              animate={{
-                y: isDark ? 650 : 0,
-                scale: isDark ? 2.5 : 1,
-                opacity: isDark ? 0 : 1,
-              }}
-              transition={{
-                duration: 2.2,
-                ease: [0.25, 1, 0.5, 1],
-              }}
-            />
-
-            {/* Moon Celestial Body */}
-            <motion.div
-              className="absolute rounded-full bg-gradient-to-br from-slate-50 via-slate-100 to-blue-200 w-[90px] h-[90px] left-1/2 ml-[-45px] top-[33%] md:w-[120px] md:h-[120px] md:left-[65%] md:ml-0 md:top-[22%]"
-              style={{
-                filter: 'blur(2px)',
-                boxShadow: '0 0 30px rgba(255,255,255,0.8), 0 0 60px rgba(186,230,253,0.6), 0 0 120px rgba(186,230,253,0.3)',
-              }}
-              animate={{
-                y: isDark ? 0 : 650,
-                scale: isDark ? 1 : 2.5,
-                opacity: isDark ? 1 : 0,
-              }}
-              transition={{
-                duration: 2.2,
-                ease: [0.25, 1, 0.5, 1],
-              }}
-            />
-
-            {/* Mobile Profile Image on Top of Mountains with Fade Mask */}
-            {isMobile && activeSection === 'home' && (
-              <motion.img
-                initial={{ opacity: 0, y: 70, scale: 1.15 }}
-                animate={{ opacity: 1, y: 0, scale: 1.35 }}
-                transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] as any }}
-                src={getCloudinaryUrl("/images/vedant-profile.png")}
-                alt="Profile"
-                className="absolute bottom-[28%] left-[51%] -translate-x-1/2 w-[300px] h-[300px] object-contain object-bottom pointer-events-none select-none z-[12]"
-                style={{
-                  WebkitMaskImage: 'linear-gradient(to top, transparent 10%, black 35%)',
-                  maskImage: 'linear-gradient(to top, transparent 10%, black 35%)'
-                }}
-              />
-            )}
-
-            {/* Background Mountains (Light Mode Overlay) */}
-            <motion.div 
-              className="absolute inset-0 bg-cover bg-center z-10"
-              style={{
-                backgroundImage: `linear-gradient(rgba(255, 245, 236, 0.38), rgba(255, 245, 236, 0.38)), url("${getCloudinaryUrl("/images/hero-bg.png")}")`,
-              }}
-              animate={{ opacity: isDark ? 0 : 1 }}
-              transition={{ duration: 2.2, ease: "easeInOut" }}
-            />
-
-            {/* Background Mountains (Dark Mode Overlay) */}
-            <motion.div 
-              className="absolute inset-0 bg-cover bg-center z-10"
-              style={{
-                backgroundImage: `linear-gradient(rgba(15, 8, 0, 0.72), rgba(15, 8, 0, 0.72)), url("${getCloudinaryUrl("/images/hero-bg.png")}")`,
-              }}
-              animate={{ opacity: isDark ? 1 : 0 }}
-              transition={{ duration: 2.2, ease: "easeInOut" }}
-            />
-          </motion.div>
-
             <motion.nav 
               className={`absolute top-0 left-0 right-0 z-[60] transition-all duration-500 ${showTourTooltip ? 'opacity-25 blur-[1px] pointer-events-none' : 'opacity-100'} ${activeSection === 'achievements' && !isMenuOpen ? 'lg:hidden' : ''}`}
               initial={{ y: -10, opacity: 0 }}
@@ -1996,7 +2213,7 @@ export function Portfolio() {
                 </div>
 
                 {/* Center: Nav Links */}
-                <div className="hidden lg:flex items-center gap-10">
+                <div className="hidden lg:flex items-center gap-6 xl:gap-8">
                   {['Home', 'About', 'Education', 'Skills & certifications', 'Projects', 'Achievements'].map((item) => {
                     const id = item === 'Skills & certifications' ? 'skills' : item.toLowerCase();
                     const isActive = activeSection === id;
@@ -2047,22 +2264,6 @@ export function Portfolio() {
                       )}
                     </button>
 
-                    <button
-                      onClick={toggleTheme}
-                      className={`p-2.5 rounded-full transition-all hover:scale-110 active:scale-90 overflow-hidden flex items-center justify-center ${activeSection === 'education' ? 'text-white hover:text-white/80' : (isDark ? 'text-[#F3D5B5]' : 'text-[#3D2817]')}`}
-                    >
-                      <AnimatePresence mode="wait" initial={false}>
-                        <motion.div
-                          key={isDark ? 'desktop-dark' : 'desktop-light'}
-                          initial={{ y: -20, rotate: -90, opacity: 0 }}
-                          animate={{ y: 0, rotate: 0, opacity: 1 }}
-                          exit={{ y: 20, rotate: 90, opacity: 0 }}
-                          transition={{ duration: 0.35, ease: "easeInOut" }}
-                        >
-                          {activeSection === 'education' ? <Sun size={20} /> : (isDark ? <Sun size={20} /> : <Moon size={20} />)}
-                        </motion.div>
-                      </AnimatePresence>
-                    </button>
                     <motion.button
                        onClick={() => setIsResumePreviewOpen(true)}
                        whileHover={{ scale: 1.05 }}
@@ -2092,19 +2293,6 @@ export function Portfolio() {
                   </div>
 
                   <div className="lg:hidden flex items-center gap-1">
-                    <button onClick={toggleTheme} className="p-1 overflow-hidden flex items-center justify-center">
-                      <AnimatePresence mode="wait" initial={false}>
-                        <motion.div
-                          key={isDark ? 'mobile-dark' : 'mobile-light'}
-                          initial={{ y: -22, rotate: -90, opacity: 0 }}
-                          animate={{ y: 0, rotate: 0, opacity: 1 }}
-                          exit={{ y: 22, rotate: 90, opacity: 0 }}
-                          transition={{ duration: 0.35, ease: "easeInOut" }}
-                        >
-                          {activeSection === 'education' ? <Sun size={22} className="text-white" /> : (isDark ? <Sun size={22} className="text-[#F3D5B5]" /> : <Moon size={22} className="text-[#3D2817]" />)}
-                        </motion.div>
-                      </AnimatePresence>
-                    </button>
                     <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-1">
                       {isMenuOpen 
                         ? <X size={28} className={activeSection === 'education' ? 'text-white' : (isDark ? 'text-[#FFEDD8]' : 'text-[#3D2817]')} /> 
@@ -2418,8 +2606,13 @@ export function Portfolio() {
                               animate="animate"
                               exit="exit"
                               onLoad={() => setLoadedImages(prev => ({ ...prev, profile: true }))}
-                              src={getCloudinaryUrl("/images/vedant-profile.png")} 
+                              src="/images/vedant.webp" 
                               alt="Vedant Wankhade - Full Stack Developer & AI Enthusiast Profile Picture" 
+                              width={1024}
+                              height={1024}
+                              loading="eager"
+                              decoding="async"
+                              fetchPriority="high"
                               className="h-full w-auto object-contain drop-shadow-2xl mx-auto"
                               style={{ imageRendering: 'auto', WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
                             />
@@ -2552,7 +2745,101 @@ export function Portfolio() {
                       className="max-w-6xl w-full mx-auto relative z-10 px-4 py-8 md:py-12 max-md:py-0 max-md:px-2"
                       style={{ color: isDark ? '#FFEDD8' : '#3D2817' }}
                     >
-                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center max-md:gap-4">
+                      <div className="relative h-[68vh] min-h-[420px] flex items-center justify-center text-center">
+                        <AnimatePresence mode="sync">
+                          <motion.div
+                            id="about-stage-content"
+                            key={`about-stage-${aboutStageIndex}`}
+                            initial={{ opacity: 0, scale: 0.98 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.98 }}
+                            transition={{ duration: 0.45, ease: 'easeInOut' }}
+                            className="absolute inset-0 mx-auto w-full max-w-5xl flex flex-col items-center justify-center px-3"
+                            style={{
+                              textShadow: isDark
+                                ? '0 3px 18px rgba(0,0,0,0.95)'
+                                : '0 2px 14px rgba(255,255,255,0.95)',
+                            }}
+                          >
+                            {aboutStageIndex === 0 && (
+                              <>
+                                <h2 className="whitespace-nowrap text-[clamp(2.25rem,7vw,6rem)] font-black tracking-[-0.05em] leading-none">
+                                  Vedant Wankhade
+                                </h2>
+                                <p className="mt-5 text-sm sm:text-lg md:text-xl font-semibold text-white/80">
+                                  Bachelor's in Computer Science and Engineering
+                                </p>
+                                <p className="mt-2 text-sm sm:text-lg font-bold tracking-wide text-[#FF8C42]">
+                                  G.H. Raisoni University
+                                </p>
+                              </>
+                            )}
+
+                            {aboutStageIndex === 1 && (
+                              <p className="text-lg sm:text-2xl md:text-3xl font-bold leading-relaxed max-w-5xl">
+                                {ABOUT_SUMMARY}
+                              </p>
+                            )}
+
+                            {aboutStageIndex === 2 && (
+                              <div className="grid w-full max-w-5xl grid-cols-3 gap-3 sm:gap-8 md:gap-14">
+                                {ABOUT_HIGHLIGHTS.map((highlight, index) => {
+                                  const HighlightIcon = highlight.icon;
+                                  return (
+                                    <motion.div
+                                      key={highlight.label}
+                                      initial={{ opacity: 0, y: 28 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      transition={{ duration: 0.5, delay: index * 0.12 }}
+                                      className="flex min-w-0 flex-col items-center"
+                                    >
+                                      <HighlightIcon className="mb-3 h-8 w-8 text-[#FF8C42] sm:h-11 sm:w-11 md:h-14 md:w-14" strokeWidth={1.7} />
+                                      <p className="text-2xl font-black tracking-tight sm:text-4xl md:text-6xl">
+                                        {highlight.value}
+                                      </p>
+                                      <p className="mt-2 text-[9px] font-bold uppercase tracking-wide text-white/80 sm:text-xs md:text-sm">
+                                        {highlight.label}
+                                      </p>
+                                      <p className="mt-1 hidden text-xs text-white/60 md:block">
+                                        {highlight.description}
+                                      </p>
+                                    </motion.div>
+                                  );
+                                })}
+                              </div>
+                            )}
+
+                            {aboutStageIndex === 3 && (
+                              <>
+                                <h3 className="mb-8 text-4xl font-black tracking-tight sm:text-6xl md:text-7xl">
+                                  MERN Stack
+                                </h3>
+                                <div className="flex items-center justify-center gap-7 sm:gap-12">
+                                  {[
+                                    ['devicon-mongodb-plain', '#4DB33D', 'MongoDB'],
+                                    ['devicon-express-original', '#FFFFFF', 'Express'],
+                                    ['devicon-react-original', '#61DAFB', 'React'],
+                                    ['devicon-nodejs-plain', '#83CD29', 'Node.js'],
+                                  ].map(([icon, color, label], index) => (
+                                    <motion.div
+                                      key={label}
+                                      initial={{ opacity: 0, y: 24, scale: 0.9 }}
+                                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                                      transition={{ duration: 0.45, delay: index * 0.1 }}
+                                      className="flex flex-col items-center gap-2"
+                                    >
+                                      <i className={`${icon} text-4xl sm:text-6xl`} style={{ color }} />
+                                      <span className="text-[9px] font-bold uppercase tracking-wider sm:text-xs">{label}</span>
+                                    </motion.div>
+                                  ))}
+                                </div>
+                              </>
+                            )}
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+
+                      <div className="hidden grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center max-md:gap-4">
                         {/* Left Column: Quick Info & Stats */}
                         <motion.div 
                           variants={contentVariants}
@@ -2560,6 +2847,11 @@ export function Portfolio() {
                         >
                           {/* Profile Header Card */}
                           <motion.div 
+                            initial={{ opacity: 0, y: 24, scale: 0.97 }}
+                            animate={backgroundVideoProgress >= 0.05
+                              ? { opacity: 1, y: 0, scale: 1 }
+                              : { opacity: 0, y: 24, scale: 0.97 }}
+                            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
                             whileHover={{ y: -4, scale: 1.015 }}
                             className={`p-6 max-md:p-4 rounded-2xl max-md:rounded-xl border backdrop-blur-md transition-all duration-500 cursor-default
                               ${isDark 
@@ -2591,8 +2883,10 @@ export function Portfolio() {
                                 key={stat.label}
                                 id={`stat-card-${i}`}
                                 initial={{ opacity: 0, y: 15 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.1 * i + 0.3, duration: 0.5 }}
+                                animate={backgroundVideoProgress >= 0.18 + i * 0.07
+                                  ? { opacity: 1, y: 0 }
+                                  : { opacity: 0, y: 15 }}
+                                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                                 whileHover={{ y: -4, scale: 1.02 }}
                                 className={`p-4 max-md:p-3 rounded-[15px] border backdrop-blur-sm transition-all duration-500 flex flex-col justify-between group
                                   ${isDark 
@@ -2617,31 +2911,49 @@ export function Portfolio() {
 
                         {/* Right Column: Narrative & Pillars */}
                         <motion.div 
-                          variants={contentVariants}
+                          initial={{ opacity: 0, x: 32 }}
+                          animate={backgroundVideoProgress >= 0.44
+                            ? { opacity: 1, x: 0 }
+                            : { opacity: 0, x: 32 }}
+                          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                           className="lg:col-span-7 flex flex-col space-y-6 max-md:space-y-4 text-left max-md:text-center max-md:items-center"
                         >
-                          <div className="space-y-4">
+                          <motion.div
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={backgroundVideoProgress >= 0.44
+                              ? { opacity: 1, y: 0 }
+                              : { opacity: 0, y: 15 }}
+                            transition={{ duration: 0.6 }}
+                            className="space-y-4"
+                          >
                             <div className={`text-sm md:text-base leading-relaxed space-y-4 ${isDark ? 'text-white/95' : 'text-[#3D2817]/95'}`}>
                                {/* Desktop view: original paragraphs */}
                                <div className="hidden md:block space-y-4">
                                  <p>
-                                   Computer Science & Engineering student with a growing foundation in Python, Data Science, and Machine Learning. I am actively learning and building AI-powered applications, intelligent systems, and full-stack projects to solve real-world problems.
+                                   Full Stack Developer with a strong foundation in modern web development and a growing interest in AI-powered applications. I enjoy building scalable, real-world solutions—from intelligent agents to complete web platforms—using the MERN stack and modern APIs.
                                  </p>
                                  <p>
-                                   From standalone solutions to integrated platforms, I focus on improving my skills through practical development. Continuously exploring core technologies, I aim to build scalable AI-driven products and evolve into a proficient developer.
+                                   Continuously exploring new technologies, I aim to grow into a proficient full-stack developer who builds impactful, production-ready products.
                                  </p>
                                </div>
                                {/* Mobile view: summarized single paragraph */}
                                <div className="block md:hidden text-center text-sm leading-relaxed">
                                  <p>
-                                   Computer Science & Engineering student actively building AI-powered systems and full-stack web applications. I focus on developing practical, scalable solutions while continuously exploring new technologies to grow as a proficient developer.
+                                   Full Stack Developer building scalable, real-world solutions—from intelligent agents to complete web platforms—using the MERN stack and modern APIs. I continuously explore new technologies to create impactful, production-ready products.
                                  </p>
                                </div>
                              </div>
-                          </div>
+                          </motion.div>
 
                           {/* Focus Areas: MERN Stack Hexagonal Logos */}
-                          <div className="space-y-3 w-full">
+                          <motion.div
+                            initial={{ opacity: 0, y: 18 }}
+                            animate={backgroundVideoProgress >= 0.66
+                              ? { opacity: 1, y: 0 }
+                              : { opacity: 0, y: 18 }}
+                            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                            className="space-y-3 w-full"
+                          >
                             <h5 className={`text-xs font-bold uppercase tracking-[0.2em] max-md:text-center hidden md:block ${isDark ? 'text-white/40' : 'text-[#3D2817]/40'}`}>Areas of Expertise</h5>
                             <div className="flex gap-3 py-1 max-md:justify-center">
                               {/* MongoDB */}
@@ -2736,10 +3048,17 @@ export function Portfolio() {
                                 </div>
                               </motion.div>
                             </div>
-                          </div>
+                          </motion.div>
 
                           {/* Socials & Resume Call-to-Action */}
-                          <div className="hidden md:flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-orange-500/10 w-full">
+                          <motion.div
+                            initial={{ opacity: 0, y: 14 }}
+                            animate={backgroundVideoProgress >= 0.84
+                              ? { opacity: 1, y: 0 }
+                              : { opacity: 0, y: 14 }}
+                            transition={{ duration: 0.55 }}
+                            className="hidden md:flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-orange-500/10 w-full"
+                          >
                             <motion.div 
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
@@ -2774,7 +3093,7 @@ export function Portfolio() {
                             >
                               Driven by curiosity. Focused on growth. 🚀
                             </motion.p>
-                          </div>
+                          </motion.div>
 
                         </motion.div>
                       </div>
@@ -2792,13 +3111,8 @@ export function Portfolio() {
                     exit="exit"
                     className="h-full w-full relative flex flex-col items-center justify-center overflow-hidden"
                   >
-                    <canvas 
-                      ref={setCanvasEl}
-                      className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
-                    />
-                    
                     {/* Dark overlay to darken background for text readability */}
-                    <div className="absolute inset-0 bg-black/55 z-[5] pointer-events-none" />
+                    <div className="absolute inset-0 bg-black/20 z-[5] pointer-events-none" />
                     
                     {/* Cards Container */}
                     <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center p-4">
@@ -2910,6 +3224,8 @@ export function Portfolio() {
                                   <img 
                                     src={currentCert.image} 
                                     alt={`Certification: ${currentCert.title} from ${currentCert.platform}`} 
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-full h-auto object-contain mix-blend-multiply rounded-xl pointer-events-none"
                                   />
                                 </motion.div>
@@ -2926,7 +3242,7 @@ export function Portfolio() {
                                          className="flex items-center gap-4 whitespace-nowrap"
                                        >
                                          <p className={`text-xl md:text-3xl font-semibold tracking-tight ${isDark ? 'text-orange-400' : 'text-orange-850'}`}>
-                                           Instructor : {currentCert.instructors[instructorPage]}
+                                           {currentCert.issuerLabel} : {currentCert.instructors[instructorPage]}
                                          </p>
                                          {currentCert.instructors.length > 1 && (
                                            <button 
@@ -3119,6 +3435,8 @@ export function Portfolio() {
                                                src={PROJECTS[activeProjectIndex].thumbnail} 
                                                onLoad={() => setLoadedImages(prev => ({ ...prev, [PROJECTS[activeProjectIndex].thumbnail]: true }))}
                                                alt={`Thumbnail for ${PROJECTS[activeProjectIndex].title}`}
+                                               loading="lazy"
+                                               decoding="async"
                                                className="w-full h-full opacity-60 transition-transform duration-700 group-hover:scale-105"
                                                style={{ objectFit: (PROJECTS[activeProjectIndex].objectFit as any) || 'cover' }}
                                              />
@@ -3162,6 +3480,8 @@ export function Portfolio() {
                                               src={PROJECTS[activeProjectIndex].thumbnail} 
                                               onLoad={() => setLoadedImages(prev => ({ ...prev, [PROJECTS[activeProjectIndex].thumbnail]: true }))}
                                               alt={`Thumbnail for ${PROJECTS[activeProjectIndex].title}`}
+                                              loading="lazy"
+                                              decoding="async"
                                               className="w-full h-full opacity-80 transition-transform duration-700 group-hover:scale-105"
                                               style={{ objectFit: (PROJECTS[activeProjectIndex].objectFit as any) || 'cover' }}
                                               onError={(e) => {
@@ -3313,13 +3633,15 @@ export function Portfolio() {
                                     ? 'border-white/10 hover:border-orange-500/50 hover:shadow-orange-500/10' 
                                     : 'border-black/10 hover:border-[#8B5A3C]/50 hover:shadow-[#8B5A3C]/10'}`}
                               >
-                                {!loadedImages[getCloudinaryUrl(project.thumbnail)] && (
+                                {!loadedImages[project.thumbnail] && (
                                   <div className={`absolute inset-0 z-30 rounded-2xl ${isDark ? 'animate-shimmer-dark' : 'animate-shimmer-light'}`} />
                                 )}
                                 <img 
-                                  src={getCloudinaryUrl(project.thumbnail)} 
-                                  onLoad={() => setLoadedImages(prev => ({ ...prev, [getCloudinaryUrl(project.thumbnail)]: true }))}
+                                  src={project.thumbnail}
+                                  onLoad={() => setLoadedImages(prev => ({ ...prev, [project.thumbnail]: true }))}
                                   alt={project.title} 
+                                  loading="lazy"
+                                  decoding="async"
                                   className="w-full h-full opacity-70 group-hover:opacity-100 transition-all duration-500 rounded-2xl" 
                                   style={{ objectFit: (project.objectFit as any) || 'cover' }}
                                 />
@@ -3351,24 +3673,30 @@ export function Portfolio() {
                       transition={{ duration: 0.8, delay: 0.2 }}
                       className="h-full w-full z-10 flex flex-col items-center justify-center px-3 sm:px-6 md:px-10 pt-16 lg:pt-8 pb-4"
                     >
-                      {/* Bento Grid */}
-                      <div className="w-full max-w-6xl h-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-3 auto-rows-fr gap-3 md:gap-4">
+                      {/* One centered achievement at a time, synchronized to scroll. */}
+                      <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
                         {ACHIEVEMENT_IMAGES.map((ach, idx) => {
-                          const spanClass = idx === 0
-                            ? 'sm:col-span-2 lg:col-span-2 lg:row-span-2'
-                            : idx === 2
-                              ? 'sm:col-span-1 lg:col-span-1 lg:row-span-2'
-                              : '';
                           const currentImgIdx = bentoImageIndices[idx] ?? 0;
+                          const isActiveAchievement = idx === scrollAchievementIndex;
 
                           return (
                             <motion.div
                               key={`bento-${idx}`}
                               id={`bento-card-${idx}`}
-                              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                              animate={{ opacity: 1, y: 0, scale: 1 }}
-                              transition={{ duration: 0.5, delay: 0.1 + idx * 0.08, ease: [0.22, 1, 0.36, 1] }}
-                              className={`relative rounded-2xl overflow-hidden cursor-pointer group min-h-[140px] sm:min-h-[160px] ${spanClass}`}
+                              initial={false}
+                              animate={isActiveAchievement
+                                ? { opacity: 1, x: 0, y: 0, scale: 1, filter: 'blur(0px)' }
+                                : {
+                                    opacity: 0,
+                                    x: idx < scrollAchievementIndex ? -90 : 90,
+                                    y: 12,
+                                    scale: 0.93,
+                                    filter: 'blur(8px)',
+                                  }}
+                              transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                              className={`absolute w-full max-w-4xl h-[60vh] max-h-[560px] min-h-[300px] rounded-2xl overflow-hidden cursor-pointer group shadow-2xl ${
+                                isActiveAchievement ? 'pointer-events-auto' : 'pointer-events-none'
+                              }`}
                               onClick={() => {
                                 setExpandedAchievement(idx);
                                 setExpandedImgIndex(bentoImageIndices[idx] ?? 0);
@@ -3380,16 +3708,27 @@ export function Portfolio() {
                               {!loadedImages[`bento-${idx}-${currentImgIdx}`] && (
                                  <div className={`absolute inset-0 z-30 ${isDark ? 'animate-shimmer-dark' : 'animate-shimmer-light'}`} />
                               )}
+                              <img
+                                src={ach.images[currentImgIdx]}
+                                alt=""
+                                aria-hidden="true"
+                                loading="lazy"
+                                decoding="async"
+                                className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-45"
+                              />
+                              <div className="absolute inset-0 bg-black/25" />
                               <AnimatePresence mode="wait">
                                 <motion.img
                                   key={`bento-img-${idx}-${currentImgIdx}`}
                                   src={ach.images[currentImgIdx]}
                                   alt={ach.title}
-                                  className="absolute inset-0 w-full h-full object-cover"
-                                  initial={{ opacity: 0 }}
-                                  animate={{ opacity: 1 }}
-                                  exit={{ opacity: 0 }}
-                                  transition={{ duration: 0.8, ease: 'easeInOut' }}
+                                  loading="lazy"
+                                  decoding="async"
+                                  className="absolute inset-0 w-full h-full object-contain z-[2]"
+                                  initial={{ opacity: 0, scale: 1.04 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  exit={{ opacity: 0, scale: 0.98 }}
+                                  transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
                                   onLoad={() => setLoadedImages(prev => ({ ...prev, [`bento-${idx}-${currentImgIdx}`]: true }))}
                                 />
                               </AnimatePresence>
@@ -3398,7 +3737,7 @@ export function Portfolio() {
                               <div className="absolute inset-0 transition-transform duration-700 group-hover:scale-110" />
 
                               {/* Gradient scrim overlay */}
-                              <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/45 to-transparent sm:bg-gradient-to-t sm:from-black/95 sm:via-black/50 sm:to-transparent opacity-85 group-hover:opacity-95 transition-opacity duration-500" />
+                              <div className="absolute inset-0 z-[3] bg-gradient-to-b from-black/90 via-black/20 to-transparent sm:bg-gradient-to-t sm:from-black/95 sm:via-black/30 sm:to-transparent opacity-85 group-hover:opacity-95 transition-opacity duration-500" />
 
                               {/* Multi-image indicator dots */}
                               {ach.images.length > 1 && (
@@ -3430,26 +3769,17 @@ export function Portfolio() {
                                     {ach.subtitle}
                                   </p>
                                   <h3 
-                                    className={`text-white font-bold leading-tight ${
-                                      idx === 0 ? 'text-xs sm:text-base md:text-lg lg:text-xl' : 'text-[10px] sm:text-xs md:text-sm'
-                                    }`}
+                                    className="text-white font-bold leading-tight text-base sm:text-xl md:text-2xl"
                                     style={{ textShadow: '0 2px 8px rgba(0,0,0,0.95)' }}
                                   >
                                     {ach.title}
                                   </h3>
-                                  {/* Description visible on hover for the large card */}
-                                  {idx === 0 && (
-                                    <div 
-                                      className="max-h-0 opacity-0 group-hover:max-h-16 group-hover:opacity-100 transition-all duration-300 ease-out overflow-hidden hidden md:block"
-                                    >
-                                      <p 
-                                        className="text-white/85 text-[10px] md:text-xs mt-1 md:mt-2 line-clamp-2"
-                                        style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}
-                                      >
-                                        {ach.description}
-                                      </p>
-                                    </div>
-                                  )}
+                                  <p
+                                    className="text-white/85 text-[10px] sm:text-xs md:text-sm mt-1 md:mt-2 line-clamp-2 max-w-2xl"
+                                    style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}
+                                  >
+                                    {ach.description}
+                                  </p>
                                 </motion.div>
                               </div>
 
@@ -3494,6 +3824,8 @@ export function Portfolio() {
                                   key={`expanded-img-${expandedAchievement}-${expandedImgIndex}`}
                                   src={ACHIEVEMENT_IMAGES[expandedAchievement]?.images[expandedImgIndex]}
                                   alt={ACHIEVEMENT_IMAGES[expandedAchievement]?.title}
+                                  loading="lazy"
+                                  decoding="async"
                                   className="absolute inset-0 w-full h-full object-contain bg-black"
                                   initial={{ opacity: 0, scale: 1.03 }}
                                   animate={{ opacity: 1, scale: 1 }}
@@ -3733,35 +4065,6 @@ export function Portfolio() {
             <Download size={22} />
           </motion.button>
 
-          {/* Bottom-Right: Theme Toggle Icon */}
-          {/* Bottom-Right: Theme Toggle Icon */}
-          <motion.button
-            id="theme-toggle-btn-floating"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            onClick={toggleTheme}
-            className="fixed bottom-6 right-6 z-[60] hidden lg:flex items-center justify-center w-12 h-12 rounded-full border shadow-lg backdrop-blur-md overflow-hidden"
-            style={{
-              backgroundColor: isDark ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.8)',
-              borderColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(61, 40, 23, 0.1)',
-              color: isDark ? '#ffffff' : '#3D2817',
-            }}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={isDark ? 'floating-dark' : 'floating-light'}
-                initial={{ y: -22, rotate: -90, opacity: 0 }}
-                animate={{ y: 0, rotate: 0, opacity: 1 }}
-                exit={{ y: 22, rotate: 90, opacity: 0 }}
-                transition={{ duration: 0.35, ease: "easeInOut" }}
-              >
-                {isDark ? <Sun size={22} /> : <Moon size={22} />}
-              </motion.div>
-            </AnimatePresence>
-          </motion.button>
         </>
       )}
 
@@ -4039,7 +4342,7 @@ export function Portfolio() {
               damping: 18,
               mass: 0.8
             }}
-            className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] ${isMobile ? 'px-3.5 py-2.5 rounded-full gap-3' : 'w-[90%] max-w-md px-4 py-2.5 rounded-full gap-3.5'} border flex items-center shadow-2xl pointer-events-auto transition-all duration-300 backdrop-blur-md`}
+            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[80] px-3.5 py-2.5 rounded-full gap-3 border flex items-center shadow-2xl pointer-events-auto transition-all duration-300 backdrop-blur-md"
             style={{
               background: isDark ? 'rgba(15, 8, 0, 0.75)' : 'rgba(255, 245, 236, 0.75)',
               borderColor: isDark ? 'rgba(255, 140, 66, 0.3)' : 'rgba(139, 90, 60, 0.3)',
@@ -4050,6 +4353,9 @@ export function Portfolio() {
             {/* Play/Pause Button */}
             <button
               onClick={toggleTourPlayback}
+              type="button"
+              aria-label={isTourAudioPlaying ? "Pause voice tour" : "Play voice tour"}
+              title={isTourAudioPlaying ? "Pause voice tour" : "Play voice tour"}
               className={`flex items-center justify-center w-8 h-8 rounded-full shadow-md shrink-0 transition-all ${
                 isDark 
                   ? 'bg-orange-500 text-white hover:bg-orange-600' 
@@ -4065,33 +4371,11 @@ export function Portfolio() {
               )}
             </button>
 
-            {/* Progress Slider & Info */}
-            {!isMobile && (
-              <div className="flex-1 flex flex-col gap-2">
-                <div className={`flex items-center justify-between text-[9px] font-bold tracking-wider ${isDark ? 'text-white' : 'text-[#3D2817]/80'}`}>
-                  <span>Voice Tour</span>
-                  <span>{formatTime(tourTime)} / {formatTime(tourDuration || 115)}</span>
-                </div>
-                <input
-                  type="range"
-                  min="0"
-                  max={tourDuration || 115}
-                  step="0.1"
-                  value={tourTime}
-                  onChange={handleTourScrub}
-                  className={`w-full h-1 rounded-full cursor-pointer appearance-none outline-none focus:outline-none ${isDark ? 'accent-white bg-white/20' : 'accent-[#3D2817] bg-[#3D2817]/20'}`}
-                  style={{
-                    background: isDark
-                      ? `linear-gradient(to right, #ffffff 0%, #ffffff ${(tourTime / (tourDuration || 115)) * 100}%, rgba(255,255,255,0.2) ${(tourTime / (tourDuration || 115)) * 100}%, rgba(255,255,255,0.2) 100%)`
-                      : `linear-gradient(to right, #3D2817 0%, #3D2817 ${(tourTime / (tourDuration || 115)) * 100}%, rgba(61,40,23,0.15) ${(tourTime / (tourDuration || 115)) * 100}%, rgba(61,40,23,0.15) 100%)`
-                  }}
-                />
-              </div>
-            )}
-
             {/* Exit Button */}
             <button
               onClick={exitTour}
+              type="button"
+              aria-label="Close voice tour"
               className={`flex items-center justify-center w-8 h-8 rounded-full transition-all active:scale-95 border shrink-0 ${
                 isDark 
                   ? 'bg-white/10 text-white hover:bg-white/25 border-white/20' 
