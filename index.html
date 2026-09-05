@@ -1,8 +1,4 @@
 <!DOCTYPE html>
-<!--
-  This file is the entry for ALL routes, including /preview/* canvas iframes.
-  Fonts are loaded here as non-blocking <link> tags (not CSS @import, which is render-blocking).
--->
 <html lang="en" style="height: 100%">
   <head>
     <meta charset="UTF-8" />
@@ -11,8 +7,8 @@
     <!-- Primary SEO Meta Tags -->
     <title>Vedant Wankhade | Full Stack Developer & AI Enthusiast Portfolio</title>
     <meta name="title" content="Vedant Wankhade | Full Stack Developer & AI Enthusiast Portfolio" />
-    <meta name="description" content="Official portfolio of Vedant Wankhade, a Full Stack Developer & AI Enthusiast. Discover AI-powered web applications (HealBook), repository visualizers (Drawgit), custom marketplace platforms, and UI/UX design portfolios." />
-    <meta name="keywords" content="Vedant Wankhade, Vedant Wankhade Portfolio, Vedant Wankhade Developer, Full Stack Developer, AI Developer, Python Programmer, React Developer, Django Developer, Next.js Developer, Software Engineer Portfolio, Web Developer Amravati, B.Tech CSE Portfolio, G.H. Raisoni University, Engineering Project Hub, Drawgit, HealBook AI, AI Chatbot Developer, Freelance Web Developer" />
+    <meta name="description" content="Official portfolio of Vedant Wankhade, a Full Stack Developer & AI Enthusiast. Discover autonomous AI agents (Brown AI), e-commerce platforms (Ekdanta), healthcare tools (HealBook), modern resume tools (NeuCV), and UI/UX design." />
+    <meta name="keywords" content="Vedant Wankhade, Vedant Wankhade Portfolio, Vedant Wankhade Developer, Full Stack Developer, AI Developer, Python Programmer, React Developer, Django Developer, Next.js Developer, Brown AI, Ekdanta, Software Engineer Portfolio, Web Developer Amravati, B.Tech CSE Portfolio, G.H. Raisoni University, Engineering Project Hub, HealBook AI, AI Chatbot Developer, Freelance Web Developer" />
     <meta name="author" content="Vedant Wankhade" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://vedantwankhade.online" />
@@ -25,7 +21,7 @@
     <meta property="og:url" content="https://vedantwankhade.online" />
     <meta property="og:title" content="Vedant Wankhade | Full Stack Developer & AI Enthusiast Portfolio" />
     <meta property="og:description" content="Discover AI-powered web applications, modern UI/UX design, custom marketplaces, and interactive experiences by Vedant Wankhade." />
-    <meta property="og:image" content="https://vedantwankhade.online/images/Hero-Section.png" />
+    <meta property="og:image" content="https://vedantwankhade.online/images/marketing/hero-section.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/png" />
@@ -38,14 +34,14 @@
     <meta name="twitter:url" content="https://vedantwankhade.online" />
     <meta name="twitter:title" content="Vedant Wankhade | Full Stack Developer & AI Enthusiast" />
     <meta name="twitter:description" content="Discover AI-powered web applications, modern UI/UX design, custom marketplaces, and interactive experiences by Vedant Wankhade." />
-    <meta name="twitter:image" content="https://vedantwankhade.online/images/Hero-Section.png" />
+    <meta name="twitter:image" content="https://vedantwankhade.online/images/marketing/hero-section.png" />
     <meta name="twitter:image:alt" content="Vedant Wankhade Portfolio Hero Section" />
     <meta name="twitter:creator" content="@vedantwankhade" />
 
     <!-- Favicon and Theme Color -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23E65100'/><text y='75' x='50' text-anchor='middle' font-family='Arial, sans-serif' font-size='80' font-weight='bold' fill='white'>V</text></svg>">
-    <meta name="theme-color" content="#E65100" />
-    <link rel="preload" as="image" href="/images/vedant.webp" type="image/webp" fetchpriority="high" />
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%232A82C0'/><text y='75' x='50' text-anchor='middle' font-family='Arial, sans-serif' font-size='80' font-weight='bold' fill='white'>V</text></svg>">
+    <meta name="theme-color" content="#0D0D0D" />
+    <link rel="preload" as="image" href="/images/profile/vedant.webp" type="image/webp" fetchpriority="high" />
 
     <!-- Schema.org JSON-LD Structured Data for Google Rich Snippets -->
     <script type="application/ld+json">
@@ -58,7 +54,7 @@
           "name": "Vedant Wankhade",
           "jobTitle": "Full Stack Developer & AI Enthusiast",
           "url": "https://vedantwankhade.online",
-          "image": "https://vedantwankhade.online/images/vedant.webp",
+          "image": "https://vedantwankhade.online/images/profile/vedant.webp",
           "sameAs": [
             "https://github.com/vedant-wankhade123",
             "https://www.linkedin.com/in/vedant-wankhade123"
@@ -120,11 +116,13 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
     <link rel="stylesheet" media="print" onload="this.media='all'"
-          href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap">
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap"></noscript>
+          href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@700;800;900&display=swap">
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Poppins:wght@700;800;900&display=swap">
+    </noscript>
   </head>
-  <body style="height: 100%; margin: 0">
-    <div id="root" style="height: 100%"></div>
+  <body style="margin: 0">
+    <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
