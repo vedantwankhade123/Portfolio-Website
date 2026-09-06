@@ -968,36 +968,40 @@ export function Portfolio() {
                 {
                   name: "React",
                   src: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
-                  className: "bottom-[16%] sm:bottom-[18%] md:bottom-[20%] left-[8%] sm:left-[3%] md:left-[4%]",
-                  size: "w-14 h-14 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40",
+                  className: "bottom-[44%] sm:bottom-[18%] md:bottom-[20%] left-[1%] sm:left-[3%] md:left-[4%]",
+                  size: "w-24 h-24 sm:w-28 sm:h-28 md:w-36 md:h-36 lg:w-40 lg:h-40",
                   opacity: 0.42,
+                  mobileOpacity: 0.6,
                   rotate: -6,
                   delay: 0.2,
                 },
                 {
                   name: "TypeScript",
                   src: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg",
-                  className: "bottom-[5%] sm:bottom-[6%] md:bottom-[7%] left-[22%] sm:left-[13%] md:left-[14%]",
-                  size: "w-12 h-12 sm:w-24 sm:h-24 md:w-30 md:h-30 lg:w-34 lg:h-34",
+                  className: "bottom-[44%] sm:bottom-[6%] md:bottom-[7%] right-[1%] sm:left-[13%] md:left-[14%] sm:right-auto",
+                  size: "w-24 h-24 sm:w-24 sm:h-24 md:w-30 md:h-30 lg:w-34 lg:h-34",
                   opacity: 0.45,
-                  rotate: -10,
+                  mobileOpacity: 0.6,
+                  rotate: 8,
                   delay: 0.3,
                 },
                 {
                   name: "Tailwind",
                   src: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/tailwindcss/tailwindcss-original.svg",
-                  className: "bottom-[9%] sm:bottom-[10%] md:bottom-[11%] left-[35%] sm:left-[23%] md:left-[25%]",
-                  size: "w-12 h-12 sm:w-20 sm:h-20 md:w-26 md:h-26 lg:w-28 lg:h-28",
+                  className: "bottom-[30%] sm:bottom-[10%] md:bottom-[11%] left-[0%] sm:left-[23%] md:left-[25%]",
+                  size: "w-20 h-20 sm:w-20 sm:h-20 md:w-26 md:h-26 lg:w-28 lg:h-28",
                   opacity: 0.45,
+                  mobileOpacity: 0.55,
                   rotate: 6,
                   delay: 0.4,
                 },
                 {
                   name: "GitHub",
                   src: "https://cdn.simpleicons.org/github/FFFFFF",
-                  className: "bottom-[9%] sm:bottom-[10%] md:bottom-[11%] right-[35%] sm:right-[23%] md:right-[25%]",
-                  size: "w-12 h-12 sm:w-22 sm:h-22 md:w-28 md:h-28 lg:w-30 lg:h-30",
+                  className: "bottom-[30%] sm:bottom-[10%] md:bottom-[11%] right-[0%] sm:right-[23%] md:right-[25%]",
+                  size: "w-20 h-20 sm:w-22 sm:h-22 md:w-28 md:h-28 lg:w-30 lg:h-30",
                   opacity: 0.38,
+                  mobileOpacity: 0.55,
                   rotate: -4,
                   delay: 0.4,
                 },
@@ -1007,22 +1011,26 @@ export function Portfolio() {
                   className: "bottom-[5%] sm:bottom-[15%] md:bottom-[16%] right-[22%] sm:right-[13%] md:right-[14%]",
                   size: "w-12 h-12 sm:w-22 sm:h-22 md:w-28 md:h-28 lg:w-30 lg:h-30",
                   opacity: 0.46,
+                  mobileOpacity: 0,
                   rotate: 6,
                   delay: 0.3,
                 },
                 {
                   name: "Python",
                   src: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/python/python-original.svg",
-                  className: "bottom-[16%] sm:bottom-[17%] md:bottom-[19%] right-[8%] sm:right-[3%] md:right-[4%]",
-                  size: "w-14 h-14 sm:w-26 sm:h-26 md:w-32 md:h-32 lg:w-38 lg:h-38",
+                  className: "bottom-[5%] sm:bottom-[17%] md:bottom-[19%] left-[22%] sm:right-[3%] md:right-[4%] sm:left-auto",
+                  size: "w-12 h-12 sm:w-26 sm:h-26 md:w-32 md:h-32 lg:w-38 lg:h-38",
                   opacity: 0.48,
+                  mobileOpacity: 0,
                   rotate: -6,
                   delay: 0.2,
                 },
-              ].map((logo) => (
+              ].map((logo) => {
+                const isMobileHidden = logo.mobileOpacity === 0;
+                return (
                 <motion.div
                   key={logo.name}
-                  className={`absolute ${logo.className} ${logo.size} filter drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)]`}
+                  className={`absolute ${logo.className} ${logo.size} filter drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)] ${isMobileHidden ? "hidden sm:block" : ""}`}
                   style={{ rotate: `${logo.rotate}deg` }}
                   initial={{ opacity: 0, y: 32, scale: 0.88 }}
                   animate={
@@ -1043,7 +1051,8 @@ export function Portfolio() {
                     loading="lazy"
                   />
                 </motion.div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Warm center backlight aura behind portrait shoulders — desktop only */}
@@ -1066,7 +1075,7 @@ export function Portfolio() {
           </div>
 
           {/* Giant role titles — behind portrait */}
-          <div className="absolute inset-x-0 top-[18%] sm:top-[16%] md:top-[14%] z-10 pointer-events-none select-none px-3 overflow-hidden">
+          <div className="absolute inset-x-0 top-[12%] sm:top-[16%] md:top-[14%] z-10 pointer-events-none select-none px-3 overflow-hidden">
             <motion.h1
               initial={{ opacity: 0, x: "-18%" }}
               animate={playHero ? { opacity: 1, x: 0 } : { opacity: 0, x: "-18%" }}
@@ -1092,20 +1101,20 @@ export function Portfolio() {
           </div>
 
           {/* Mobile only: Explore Work button matching reference design */}
-          <div className="sm:hidden absolute inset-x-0 top-[32%] -translate-y-1/2 z-30 flex justify-center pointer-events-none px-4">
+          <div className="sm:hidden absolute inset-x-0 top-[27%] -translate-y-1/2 z-30 flex justify-center pointer-events-none px-4">
             <motion.button
               type="button"
               onClick={() => onNav("work")}
               initial={{ opacity: 0, y: 10, scale: 0.94 }}
               animate={playHero ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 10, scale: 0.94 }}
               transition={{ duration: 0.55, delay: playHero ? 0.35 : 0, ease: easeOut }}
-              className="pointer-events-auto inline-flex items-center rounded-full pl-1.5 pr-6 py-1.5 text-sm font-semibold tracking-wide text-white shadow-[0_4px_24px_rgba(255,90,31,0.5)] active:scale-95 transition-all hover:opacity-95 cursor-pointer min-w-[170px]"
+              className="pointer-events-auto inline-flex items-center gap-2 rounded-full pl-5 pr-1.5 py-1.5 text-sm font-semibold tracking-wide text-white active:scale-95 transition-all hover:opacity-95 cursor-pointer"
               style={{ background: ORANGE }}
             >
+              <span className="font-semibold">Explore Work</span>
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white shrink-0">
                 <ArrowUpRight size={16} strokeWidth={2.4} />
               </span>
-              <span className="flex-1 text-center pr-2 font-semibold">Explore Work</span>
             </motion.button>
           </div>
 
@@ -1251,9 +1260,7 @@ export function Portfolio() {
                   />
                   <div className="relative z-10 flex flex-col h-full min-h-[420px]">
                     <p
-                      className={`text-xs font-semibold tracking-[0.2em] ${
-                        featured ? "text-white/80" : "text-white/45"
-                      }`}
+                      className="text-sm font-semibold tracking-normal text-white"
                     >
                       {card.label}
                     </p>
