@@ -53,11 +53,10 @@ Built with React, TypeScript, Vite, Framer Motion, GSAP, and Tailwind CSS v4.
 
 ## Projects featured
 
-1. **HealBook** — AI doctor booking & symptom chatbot (React, Gemini, Node)
-2. **Ekdanta** — Client e-commerce storefront (React, Firebase)
-3. **Engineering Project Hub** — Project marketplace (React, Framer Motion)
-4. **Drawgit** — GitHub repo visualizer (Next.js, OpenAI)
-5. **NeuCV** — AI resume builder (Vue, FastAPI)
+1. **Brown AI** — Featured Windows and Android AI workspace with local models, file tools, voice, and device sync (Electron, React Native, TypeScript, Python, Ollama)
+2. **Ekdanta** — Client e-commerce storefront (Next.js, Firebase)
+3. **Engineering Project Hub** — Project marketplace (React, Firebase)
+4. **NeuCV** — AI resume builder (Vue, FastAPI)
 
 ## Getting started
 

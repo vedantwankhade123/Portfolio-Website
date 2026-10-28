@@ -15,6 +15,7 @@ import {
   Minimize2,
   Maximize2,
   Sparkles,
+  LockKeyhole,
 } from "lucide-react";
 import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
 import {
@@ -64,17 +65,14 @@ const NAV = [
 function NameSpotlight({ name }: { name: string }) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const reduceMotion = useReducedMotion();
-  const [pos, setPos] = useState({ x: 50, y: 50 });
   const [hover, setHover] = useState(false);
 
   const onMove = (e: MouseEvent<HTMLDivElement>) => {
     const el = wrapRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    setPos({
-      x: ((e.clientX - r.left) / r.width) * 100,
-      y: ((e.clientY - r.top) / r.height) * 100,
-    });
+    el.style.setProperty("--spotlight-x", `${((e.clientX - r.left) / r.width) * 100}%`);
+    el.style.setProperty("--spotlight-y", `${((e.clientY - r.top) / r.height) * 100}%`);
   };
 
   const typeClass =
@@ -92,8 +90,8 @@ function NameSpotlight({ name }: { name: string }) {
       <div
         className="pointer-events-none absolute h-[65%] w-[36%] max-w-[28rem] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl transition-opacity duration-300"
         style={{
-          left: `${pos.x}%`,
-          top: `${pos.y}%`,
+          left: "var(--spotlight-x, 50%)",
+          top: "var(--spotlight-y, 50%)",
           opacity: hover && !reduceMotion ? 0.38 : 0.1,
           background: "radial-gradient(circle, #C45A28 0%, rgba(139,58,24,0.2) 42%, transparent 70%)",
         }}
@@ -117,7 +115,7 @@ function NameSpotlight({ name }: { name: string }) {
               WebkitTextStroke: "0px transparent",
               backgroundImage:
                 hover || reduceMotion
-                  ? `radial-gradient(circle clamp(6rem, 16vw, 13rem) at ${pos.x}% ${pos.y}%, #D4652E 0%, #A84820 34%, transparent 68%)`
+                  ? `radial-gradient(circle clamp(6rem, 16vw, 13rem) at var(--spotlight-x, 50%) var(--spotlight-y, 50%), #D4652E 0%, #A84820 34%, transparent 68%)`
                   : "radial-gradient(circle 4.5rem at 50% 50%, rgba(168,72,32,0.28) 0%, transparent 70%)",
               WebkitBackgroundClip: "text",
               backgroundClip: "text",
@@ -331,6 +329,166 @@ function PillButton({
   );
 }
 
+function ProjectHighlights({ project }: { project: Project }) {
+  if (!project.highlights?.length) return null;
+
+  return (
+    <ul className="mt-4 space-y-2.5 text-sm sm:text-base leading-relaxed text-white/70">
+      {project.highlights.map((highlight) => (
+        <li key={highlight} className="flex items-start gap-2.5">
+          <Check size={16} className="mt-1 shrink-0 text-[#FF5A1F]" aria-hidden="true" />
+          <span>{highlight}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function CertificationShowcase({ onSelect }: { onSelect: (image: AchievementBentoImage) => void }) {
+  return (
+    <div className="max-w-6xl mx-auto">
+      <div className="grid md:grid-cols-3 items-stretch gap-4 sm:gap-5">
+            {[
+              { ...CERTIFICATIONS.items[0], pending: false },
+              { ...CERTIFICATIONS.activeCourse, desc: CERTIFICATIONS.activeCourse.description, id: "sheryians-cohort", pending: true },
+              { ...CERTIFICATIONS.items[1], pending: false },
+            ].map((item, index) => (
+              <Reveal key={item.id} className="relative min-w-0" y={28} delay={index * 0.05}>
+                <button
+                  type="button"
+                  onClick={() =>
+                    onSelect({
+                      kind: "image",
+                      imageOnly: true,
+                      src: item.src,
+                      title: `${item.issuer} — ${item.title}${item.pending ? " · Certificate pending" : ""}`,
+                      year: item.pending ? "In progress" : "Cert",
+                    })
+                  }
+                  className="group relative block w-full overflow-hidden rounded-[1.35rem] sm:rounded-[1.6rem] border border-white/10 bg-[#111] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2410C]/70"
+                >
+                  <img
+                    src={item.src}
+                    alt={`${item.issuer} — ${item.title}`}
+                    className="block w-full aspect-[842/595] object-contain bg-white transition-transform duration-500 group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                  {item.pending && (
+                    <span role="img" aria-label="Certificate pending — course in progress" className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center text-[#9A3412]">
+                      <LockKeyhole size={32} strokeWidth={2} aria-hidden="true" />
+                    </span>
+                  )}
+                  <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-[32%] sm:h-[28%]"
+                    style={{
+                      background: `linear-gradient(to top, #9A3412 0%, #9A3412E6 35%, #C2410C66 70%, transparent 100%)`,
+                    }}
+                  />
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:px-5 sm:pt-5">
+                    <div className="min-w-0">
+                      <p className="text-[11px] sm:text-xs leading-none font-bold tracking-[0.12em] uppercase text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.4)]">
+                        {item.issuer}
+                      </p>
+                      <p className="mt-0.5 text-lg sm:text-xl font-bold text-white leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.4)]">
+                        {item.pending ? "Cohort 3.0 · AI Powered" : item.title}
+                      </p>
+                    </div>
+                    <span
+                      className="inline-flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-white/95 text-[#9A3412] transition-transform duration-300 group-hover:rotate-12"
+                      aria-hidden
+                    >
+                      <ArrowUpRight size={16} strokeWidth={2.25} />
+                    </span>
+                  </div>
+                </button>
+              </Reveal>
+            ))}
+          </div>
+    </div>
+  );
+}
+
+function ProjectEntrance({ children, className, direction = "bottom", delay = 0 }: {
+  children: ReactNode;
+  className?: string;
+  direction?: "left" | "right" | "bottom" | "depth";
+  delay?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const visible = useInView(ref, { once: false, amount: 0.08, margin: "-64px 0px -4% 0px" });
+  const reduceMotion = useReducedMotion();
+  const shown = visible || reduceMotion;
+  return (
+    <div ref={ref} className={className} style={direction === "depth" ? { perspective: 1000 } : undefined}>
+      <motion.div
+        initial={false}
+        animate={{ opacity: shown ? 1 : 0, x: shown || direction === "bottom" || direction === "depth" ? 0 : direction === "left" ? "-100vw" : "100vw", y: shown || direction !== "bottom" ? 0 : 48, z: shown || direction !== "depth" ? 0 : -100, scale: shown || direction !== "depth" ? 1 : 0.94 }}
+        transition={{ duration: reduceMotion ? 0 : 0.72, delay: shown ? delay : 0, ease: [0.25, 1, 0.5, 1] }}
+      >{children}</motion.div>
+    </div>
+  );
+}
+
+function ProjectVisual({ project, revealed = true }: { project: Project; revealed?: boolean }) {
+  const reduceMotion = useReducedMotion();
+  const shown = revealed || reduceMotion;
+  if (project.featured && project.mobileThumbnail) {
+    return (
+      <div className="brown-device-stage" role="img" aria-label="Brown AI running on a Windows laptop and Android phone">
+        <motion.img src={project.thumbnail} alt="" className="brown-laptop" loading="lazy" initial={false} animate={{ x: shown ? 0 : "-100vw", opacity: shown ? 1 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.85, ease: easeOut }} />
+        <motion.img src={project.mobileThumbnail} alt="" className="brown-phone" loading="lazy" initial={false} animate={{ x: shown ? 0 : "100vw", opacity: shown ? 1 : 0 }} transition={{ duration: reduceMotion ? 0 : 0.85, delay: shown && !reduceMotion ? 0.1 : 0, ease: easeOut }} />
+      </div>
+    );
+  }
+  return <img src={project.thumbnail} alt={project.title} className="w-full h-full" style={{ objectFit: (project.objectFit as "contain" | "cover") || "cover" }} loading="lazy" />;
+}
+
+function BrownProviderShowcase({ project }: { project: Project }) {
+  const reduceMotion = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const visible = useInView(ref, { once: false, amount: 0.08, margin: "-64px 0px -4% 0px" });
+  const shown = visible || reduceMotion;
+  return (
+    <div ref={ref} className="brown-provider-scene mx-auto w-full max-w-6xl">
+      {BROWN_AI_PROVIDERS.map((provider, index) => (
+        <motion.div
+          key={provider.name}
+          className={`brown-provider-logo brown-provider-logo-${index}`}
+          title={provider.name}
+          initial={false}
+          animate={{ x: shown ? 0 : index % 2 === 0 ? "-100vw" : "100vw", opacity: shown ? (index === 6 || index === 9 ? 0.7 : 0.42) : 0, y: reduceMotion || !visible ? 0 : [0, -3, 0] }}
+          transition={{ x: { duration: reduceMotion ? 0 : 0.85, delay: shown && !reduceMotion ? (index % 5) * 0.055 : 0, ease: easeOut }, opacity: { duration: reduceMotion ? 0 : 0.65 }, y: { duration: 4.5 + index * 0.25, repeat: Infinity, ease: "easeInOut" } }}
+        >
+          <img src={provider.src} alt={provider.name} loading="lazy" className="h-full w-full object-contain" />
+        </motion.div>
+      ))}
+      <div className="relative z-10 mx-auto w-[76%]"><ProjectVisual project={project} revealed={Boolean(shown)} /></div>
+    </div>
+  );
+}
+
+function FeaturedProject({ project }: { project: Project }) {
+  return (
+    <div className="min-w-0">
+      <article id="project-0" className="relative scroll-mt-28">
+        <ProjectEntrance direction="depth" className="flex flex-wrap items-center justify-center gap-3 py-4">
+          <p className="project-pill project-pill-orange inline-flex items-center gap-2 px-4 py-2.5 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.18em] text-white"><Sparkles size={14} aria-hidden="true" /> Featured project</p>
+        </ProjectEntrance>
+        <BrownProviderShowcase project={project} />
+        <ProjectEntrance direction="depth" className="mx-auto max-w-3xl text-center">
+          <div className="pt-7 pb-2 sm:pt-10">
+            <h3 className="text-4xl sm:text-5xl xl:text-6xl font-bold tracking-tight text-white">{project.title}<span className="text-[#FF5A1F]">.</span></h3>
+            <p className="mx-auto mt-5 max-w-[38rem] text-balance text-base sm:text-lg leading-relaxed text-white/60">{project.desc}</p>
+          </div>
+        </ProjectEntrance>
+        <ProjectEntrance className="py-5 sm:py-6" delay={0.08}>
+          <ProjectActions project={project} className="justify-center" />
+        </ProjectEntrance>
+      </article>
+    </div>
+  );
+}
+
 function ProjectActions({ project, className }: { project: Project; className?: string }) {
   const siteUnavailable = project.liveUrl === "not_live" || project.liveUrl === "#" || !project.liveUrl;
 
@@ -359,16 +517,38 @@ function ProjectActions({ project, className }: { project: Project; className?: 
           onClick={openLive}
           className="inline-flex items-center gap-2 rounded-full bg-[#FF5A1F] hover:bg-[#FF6B2C] text-white text-base font-semibold px-5 py-2.5 transition-colors cursor-pointer"
         >
-          Visit Site <ExternalLink size={16} />
+          {project.featured ? "Explore Brown" : "Visit Site"} <ExternalLink size={16} />
         </button>
       )}
+      {project.downloads?.map((download) => (
+        <a
+          key={download.url}
+          href={download.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="project-pill inline-flex items-center gap-2 text-white text-base font-semibold px-5 py-2.5 transition-colors"
+        >
+          {download.platform === "windows" ? (
+            <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="currentColor" aria-hidden="true"><path d="M2 2h9v9H2zm11 0h9v9h-9zM2 13h9v9H2zm11 0h9v9h-9z" /></svg>
+          ) : (
+            <img src="/images/tech/android.svg" alt="" className="h-5 w-5 shrink-0" />
+          )}
+          {download.label} <Download size={16} aria-hidden="true" />
+        </a>
+      ))}
+      {project.featured ? (
+        <div className="flex flex-wrap items-center gap-3 text-sm text-white/85">
+          <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" className="project-pill inline-flex items-center gap-2 px-4 py-2.5 transition-colors"><Github size={16} aria-hidden="true" />GitHub</a>
+        </div>
+      ) : (
       <button
         type="button"
         onClick={openGithub}
-        className="inline-flex items-center gap-2 rounded-full border border-white/15 hover:border-[#FF5A1F]/50 text-white/80 text-base font-semibold px-5 py-2.5 transition-colors cursor-pointer"
+        className="project-pill inline-flex items-center gap-2 text-white/90 text-base font-semibold px-5 py-2.5 transition-colors cursor-pointer"
       >
         GitHub <Github size={16} />
       </button>
+      )}
     </div>
   );
 }
@@ -386,7 +566,10 @@ function ArcGallery({
   const reduceMotion = useReducedMotion();
   const stageRef = useRef<HTMLDivElement>(null);
   const [stageW, setStageW] = useState(1200);
-  const [shift, setShift] = useState(0);
+  const shiftRef = useRef(0);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const galleryVisible = useInView(stageRef, { amount: 0.01 });
+  const shift = shiftRef.current;
   const [hoverPause, setHoverPause] = useState(false);
 
   const cardW = stageW < 480 ? 220 : stageW < 768 ? 280 : stageW < 1100 ? 320 : 360;
@@ -407,7 +590,7 @@ function ArcGallery({
   }, []);
 
   useEffect(() => {
-    if (reduceMotion || paused || hoverPause || setWidth <= 0) return;
+    if (reduceMotion || paused || hoverPause || !galleryVisible || setWidth <= 0) return;
     let raf = 0;
     let last = performance.now();
     const speed = stageW < 768 ? 36 : 48; // px/sec, right → left
@@ -415,15 +598,25 @@ function ArcGallery({
     const tick = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
-      setShift((s) => {
-        const next = s + speed * dt;
-        return next >= setWidth ? next - setWidth : next;
+      shiftRef.current = (shiftRef.current + speed * dt) % setWidth;
+      const arcRadius = Math.max(stageW * 0.95, 520);
+      cardRefs.current.forEach((card, index) => {
+        if (!card) return;
+        const x = index * step - shiftRef.current - setWidth + stageW * 0.08;
+        const midpoint = x + cardW / 2;
+        const nearViewport = midpoint >= -cardW * 1.5 && midpoint <= stageW + cardW * 1.5;
+        if (!nearViewport) { card.style.visibility = "hidden"; return; }
+        const dx = Math.max(-arcRadius * 0.92, Math.min(arcRadius * 0.92, midpoint - stageW / 2));
+        const y = 12 + arcRadius - Math.sqrt(Math.max(0, arcRadius * arcRadius - dx * dx));
+        const angle = Math.asin(dx / arcRadius) * 180 / Math.PI;
+        card.style.visibility = "visible";
+        card.style.transform = `translate3d(${x}px, ${y}px, 0) rotate(${angle}deg)`;
       });
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [reduceMotion, paused, hoverPause, setWidth, stageW]);
+  }, [reduceMotion, paused, hoverPause, galleryVisible, setWidth, stageW, step, cardW]);
 
   // Arc geometry: ∩ curve across the viewport
   const radius = Math.max(stageW * 0.95, 520);
@@ -448,8 +641,6 @@ function ArcGallery({
         const y = 12 + radius - Math.sqrt(Math.max(0, radius * radius - clamped * clamped));
         const angle = (Math.asin(clamped / radius) * 180) / Math.PI;
 
-        // Only render when near viewport for perf
-        if (midX < -cardW * 1.5 || midX > stageW + cardW * 1.5) return null;
 
         const pIdx = projects.findIndex((item) => item.title === p.title);
         const handleGoToProject = () => {
@@ -467,12 +658,14 @@ function ArcGallery({
         return (
           <div
             key={`${p.title}-${i}`}
+            ref={(element) => { cardRefs.current[i] = element; }}
             className="absolute top-0 will-change-transform"
             style={{
               width: cardW,
               height: cardH,
-              left: x,
-              transform: `translateY(${y}px) rotate(${angle}deg)`,
+              left: 0,
+              visibility: midX < -cardW * 1.5 || midX > stageW + cardW * 1.5 ? "hidden" : "visible",
+              transform: `translate3d(${x}px, ${y}px, 0) rotate(${angle}deg)`,
               zIndex: 1,
             }}
           >
@@ -484,7 +677,7 @@ function ArcGallery({
               aria-label={`Scroll to ${p.title}`}
             >
               <img
-                src={p.thumbnail}
+                src={p.carouselThumbnail ?? p.thumbnail}
                 alt={p.title}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 draggable={false}
@@ -568,6 +761,14 @@ export function Portfolio() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [bentoOpen, setBentoOpen] = useState<AchievementBentoImage | null>(null);
+  useEffect(() => {
+    if (!bentoOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setBentoOpen(null);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [bentoOpen]);
   const [workDropdownOpen, setWorkDropdownOpen] = useState(false);
   const [mobileWorkOpen, setMobileWorkOpen] = useState(false);
   const heroRef = useRef<HTMLElement | null>(null);
@@ -602,19 +803,22 @@ export function Portfolio() {
   };
 
   useEffect(() => {
-    const onScroll = () => {
+    let frame = 0;
+    const sections = NAV.map((item) => ({ id: item.id, element: document.getElementById(item.id) }));
+    const updateNavigation = () => {
+      frame = 0;
       setScrolled(window.scrollY > 24);
       const offset = window.scrollY + 140;
       let current = "home";
-      for (const item of NAV) {
-        const el = document.getElementById(item.id);
-        if (el && el.offsetTop <= offset) current = item.id;
+      for (const section of sections) {
+        if (section.element && section.element.offsetTop <= offset) current = section.id;
       }
       setActiveNav(current);
     };
+    const onScroll = () => { if (!frame) frame = requestAnimationFrame(updateNavigation); };
     window.addEventListener("scroll", onScroll, { passive: true });
-    onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    updateNavigation();
+    return () => { window.removeEventListener("scroll", onScroll); cancelAnimationFrame(frame); };
   }, []);
 
   useEffect(() => {
@@ -708,10 +912,18 @@ export function Portfolio() {
             {NAV.map((item) => {
               if (item.id === "work") {
                 return (
-                  <div key={item.id} className="relative flex items-center">
+                  <div
+                    key={item.id}
+                    className="relative flex items-center"
+                    onPointerEnter={(event) => { if (event.pointerType === "mouse") setWorkDropdownOpen(true); }}
+                    onPointerLeave={(event) => { if (event.pointerType === "mouse") setWorkDropdownOpen(false); }}
+                    onKeyDown={(event) => { if (event.key === "Escape") setWorkDropdownOpen(false); }}
+                  >
                     <button
                       type="button"
-                      onClick={() => onNav("work")}
+                      onClick={(event) => { event.stopPropagation(); setWorkDropdownOpen(true); }}
+                      aria-haspopup="true"
+                      aria-expanded={workDropdownOpen}
                       className={`text-base sm:text-[17px] font-medium leading-none transition-colors pr-1 ${
                         activeNav === "work" ? "text-white" : "text-[#A0A0A0] hover:text-white"
                       }`}
@@ -725,7 +937,7 @@ export function Portfolio() {
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setWorkDropdownOpen((prev) => !prev);
+                        setWorkDropdownOpen(true);
                       }}
                       aria-label="Toggle projects dropdown"
                       aria-expanded={workDropdownOpen}
@@ -742,32 +954,19 @@ export function Portfolio() {
                     </button>
 
                     {/* Desktop Dropdown Menu */}
+                    {workDropdownOpen && <div aria-hidden="true" className="absolute top-full left-1/2 -translate-x-1/2 w-[300px] h-10" />}
                     <AnimatePresence>
                       {workDropdownOpen && (
                         <motion.div
-                          initial={{ opacity: 0, y: 8, scale: 0.96 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 6, scale: 0.96 }}
-                          transition={{ duration: 0.18, ease: easeOut }}
+                          initial={{ opacity: 0, y: 6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 4 }}
+                          transition={{ duration: 0.16, ease: easeOut }}
                           onClick={(e) => e.stopPropagation()}
-                          className="absolute top-full left-1/2 -translate-x-1/2 mt-6 sm:mt-7 rounded-2xl border border-white/15 p-4 shadow-[0_25px_60px_rgba(0,0,0,0.95)] bg-[#121212] z-50 min-w-[280px] sm:min-w-[340px]"
+                          className="absolute top-full left-1/2 -translate-x-1/2 mt-10 w-[300px] origin-top rounded-[16px] border border-white/10 p-1.5 shadow-[0_20px_60px_rgba(0,0,0,0.55)] z-50"
+                          style={{ background: "linear-gradient(180deg, #1C1C1C 0%, #151515 100%)" }}
                         >
-                          <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-white/10 px-1">
-                            <span className="text-xs font-bold tracking-wider uppercase text-white/50">
-                              Selected Projects
-                            </span>
-                            <span className="text-[11px] font-semibold text-[#FF5A1F] bg-[#FF5A1F]/15 px-2.5 py-0.5 rounded-full border border-[#FF5A1F]/20">
-                              {PROJECTS.length} Works
-                            </span>
-                          </div>
-
-                          {/* Grid with 5 items per column */}
-                          <div
-                            className="grid grid-flow-col gap-2"
-                            style={{
-                              gridTemplateRows: `repeat(${Math.min(5, PROJECTS.length)}, minmax(0, 1fr))`,
-                            }}
-                          >
+                          <div className="flex flex-col gap-0.5">
                             {PROJECTS.map((proj, pIdx) => (
                               <button
                                 key={proj.title}
@@ -781,20 +980,20 @@ export function Portfolio() {
                                     onNav("work");
                                   }
                                 }}
-                                className="group flex items-center gap-3 p-2.5 rounded-xl text-left transition-all hover:bg-white/[0.08] border border-transparent hover:border-white/10 w-full min-w-[250px]"
+                                className="group flex items-center gap-2.5 px-2 py-2 rounded-[10px] text-left transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06] focus-visible:outline-none w-full"
                               >
-                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FF5A1F] text-white text-xs font-bold shadow-sm transition-transform group-hover:scale-105">
+                                <span className="flex w-9 shrink-0 items-center justify-center text-[28px] leading-none font-medium text-white/85 tabular-nums">
                                   {String(pIdx + 1).padStart(2, "0")}
                                 </span>
                                 <div className="min-w-0 flex-1">
-                                  <p className="text-sm font-semibold text-white group-hover:text-[#FF5A1F] transition-colors truncate">
-                                    {proj.title}
+                                  <p className="text-sm font-medium text-white/85 group-hover:text-white transition-colors truncate">
+                                    {proj.title.split(" – ")[0]}
                                   </p>
                                   <p className="text-xs text-white/50 truncate">
                                     {proj.tags.slice(0, 2).join(" · ")}
                                   </p>
                                 </div>
-                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#FF5A1F] text-white shadow-sm transition-all group-hover:scale-110 group-hover:rotate-12">
+                                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#FF5A1F] text-white transition-colors group-hover:bg-[#FF6B2C]">
                                   <ArrowUpRight size={13} strokeWidth={2.4} />
                                 </span>
                               </button>
@@ -1030,7 +1229,7 @@ export function Portfolio() {
                 return (
                 <motion.div
                   key={logo.name}
-                  className={`absolute ${logo.className} ${logo.size} filter drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)] ${isMobileHidden ? "hidden sm:block" : ""}`}
+                  className={`hero-motion-layer absolute ${logo.className} ${logo.size} filter drop-shadow-[0_4px_24px_rgba(0,0,0,0.7)] ${isMobileHidden ? "hidden sm:block" : ""}`}
                   style={{ rotate: `${logo.rotate}deg` }}
                   initial={{ opacity: 0, y: 32, scale: 0.88 }}
                   animate={
@@ -1080,7 +1279,7 @@ export function Portfolio() {
               initial={{ opacity: 0, x: "-18%" }}
               animate={playHero ? { opacity: 1, x: 0 } : { opacity: 0, x: "-18%" }}
               transition={{ duration: 1, delay: playHero ? 0.12 : 0, ease: easeOut }}
-              className="font-hero-title text-center font-black tracking-tighter leading-[0.95] text-white/70 whitespace-nowrap"
+              className="hero-motion-layer font-hero-title text-center font-black tracking-tighter leading-[0.95] text-white/70 whitespace-nowrap"
               style={{ fontSize: "clamp(1.85rem, 9vw, 8rem)" }}
             >
               Full Stack Developer
@@ -1089,7 +1288,7 @@ export function Portfolio() {
               initial={{ opacity: 0, x: "18%" }}
               animate={playHero ? { opacity: 1, x: 0 } : { opacity: 0, x: "18%" }}
               transition={{ duration: 1, delay: playHero ? 0.24 : 0, ease: easeOut }}
-              className="font-hero-title text-center font-black tracking-tighter leading-[0.95] mt-1 sm:mt-2 whitespace-nowrap"
+              className="hero-motion-layer font-hero-title text-center font-black tracking-tighter leading-[0.95] mt-1 sm:mt-2 whitespace-nowrap"
               style={{
                 fontSize: "clamp(1.85rem, 9vw, 8rem)",
                 WebkitTextStroke: "clamp(1px, 0.14vw, 2px) rgba(255,255,255,0.72)",
@@ -1120,7 +1319,7 @@ export function Portfolio() {
 
           {/* Portrait — in front of titles, faded at bottom */}
           <motion.div
-            className="absolute inset-x-0 bottom-0 z-20 flex justify-center items-end pointer-events-none h-[75%] sm:h-[78%] md:h-[82%]"
+            className="hero-motion-layer absolute inset-x-0 bottom-0 z-20 flex justify-center items-end pointer-events-none h-[75%] sm:h-[78%] md:h-[82%]"
             initial={{ opacity: 0, y: "28%" }}
             animate={playHero ? { opacity: 1, y: 0 } : { opacity: 0, y: "28%" }}
             transition={{ duration: 1.15, delay: playHero ? 0.18 : 0, ease: easeOut }}
@@ -1148,7 +1347,7 @@ export function Portfolio() {
 
           {/* Bottom UI row */}
           <motion.div
-            className="absolute inset-x-0 bottom-0 z-30 px-5 sm:px-8 lg:px-12 pb-6 sm:pb-8 pointer-events-none"
+            className="hero-motion-layer absolute inset-x-0 bottom-0 z-30 px-5 sm:px-8 lg:px-12 pb-6 sm:pb-8 pointer-events-none"
             initial={{ opacity: 0, y: 16 }}
             animate={playHero ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
             transition={{ duration: 0.8, delay: playHero ? 0.55 : 0, ease: easeOut }}
@@ -1237,7 +1436,7 @@ export function Portfolio() {
               text={EDUCATION.heading}
               className="text-[clamp(2.35rem,5vw,4rem)] font-bold tracking-tight text-white mx-auto text-center"
             />
-            <p className="mt-3 text-base sm:text-lg font-light leading-relaxed max-w-2xl mx-auto text-center" style={{ color: MUTED }}>
+            <p className="mt-3 text-base sm:text-lg font-light leading-relaxed max-w-3xl mx-auto text-center text-balance" style={{ color: MUTED }}>
               {EDUCATION.body}
             </p>
           </Reveal>
@@ -1367,82 +1566,26 @@ export function Portfolio() {
         </section>
 
         {/* ——— CERTIFICATIONS ——— */}
-        <section id="certifications" className={`${SHELL} ${SECTION_Y}`}>
+        <section id="certifications" className={`${SHELL} ${SECTION_Y} overflow-x-clip`}>
           <Reveal className="w-full mb-10 md:mb-14 text-center">
             <TypeTitle
               text={CERTIFICATIONS.heading}
               className="text-[clamp(2.1rem,4vw,3.25rem)] font-bold tracking-tight text-white mx-auto text-center"
             />
-            <p className="mt-3 text-base sm:text-lg font-light leading-relaxed max-w-2xl mx-auto text-center" style={{ color: MUTED }}>
+            <p className="mt-3 text-base sm:text-lg font-light leading-relaxed max-w-3xl mx-auto text-center text-balance" style={{ color: MUTED }}>
               {CERTIFICATIONS.body}
             </p>
           </Reveal>
 
-          <div className="grid sm:grid-cols-2 gap-4 sm:gap-5 max-w-5xl mx-auto">
-            {CERTIFICATIONS.items.map((item, i) => (
-              <Reveal key={item.id} delay={i * 0.08} y={28}>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setBentoOpen({
-                      kind: "image",
-                      src: item.src,
-                      title: `${item.issuer} — ${item.title}`,
-                      year: "Cert",
-                    })
-                  }
-                  className="group relative block w-full overflow-hidden rounded-[1.35rem] sm:rounded-[1.6rem] border border-white/10 bg-[#111] text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C2410C]/70"
-                >
-                  <img
-                    src={item.src}
-                    alt={`${item.issuer} — ${item.title}`}
-                    className="block w-full h-auto transition-transform duration-500 group-hover:scale-[1.02]"
-                    loading="lazy"
-                  />
-                  <div
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-[32%] sm:h-[28%]"
-                    style={{
-                      background: `linear-gradient(to top, #9A3412 0%, #9A3412E6 35%, #C2410C66 70%, transparent 100%)`,
-                    }}
-                  />
-                  <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-5">
-                    <div className="min-w-0">
-                      <p className="text-[11px] sm:text-xs font-bold tracking-[0.16em] uppercase text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.4)]">
-                        {item.issuer}
-                      </p>
-                      <p className="mt-1 text-lg sm:text-xl font-bold text-white leading-snug drop-shadow-[0_1px_3px_rgba(0,0,0,0.4)]">
-                        {item.title}
-                      </p>
-                    </div>
-                    <span
-                      className="inline-flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-full bg-white/95 text-[#9A3412] transition-transform duration-300 group-hover:rotate-12"
-                      aria-hidden
-                    >
-                      <ArrowUpRight size={16} strokeWidth={2.25} />
-                    </span>
-                  </div>
-                </button>
-              </Reveal>
-            ))}
-          </div>
+          <CertificationShowcase onSelect={setBentoOpen} />
         </section>
 
         {/* ——— STATS ——— */}
         <section className={`${SHELL} py-16 sm:py-20 md:py-24 relative z-10 border-y border-white/5`}>
-          <div className="grid lg:grid-cols-[1fr_1.35fr] gap-10 lg:gap-14 items-center w-full">
-            <div className="min-w-0 text-center lg:text-left">
-              <TypeTitle
-                text={STATS.heading}
-                nowrap
-                className="text-[clamp(1.35rem,2.8vw,2.85rem)] font-bold tracking-tight text-white mx-auto lg:mx-0 text-center lg:text-left"
-              />
-              <p className="mt-3 text-lg font-light leading-relaxed text-center lg:text-left" style={{ color: MUTED }}>
-                {STATS.body}
-              </p>
-            </div>
+          <div className="w-full max-w-5xl mx-auto">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
               {STATS.items.map((stat, i) => (
-                <Reveal key={stat.label} delay={i * 0.06} y={20} className="text-center sm:text-left min-w-0">
+                <Reveal key={stat.label} delay={i * 0.06} y={20} className="text-center min-w-0">
                   <CountStat
                     value={stat.value}
                     className="text-[clamp(2.4rem,5vw,3.65rem)] font-bold tracking-tight leading-none tabular-nums"
@@ -1468,7 +1611,7 @@ export function Portfolio() {
           </div>
 
           <div className={`${SHELL} mt-0 md:-mt-14`}>
-            <Reveal className="w-full text-center">
+            <ProjectEntrance direction="depth" className="w-full text-center">
               <div className="relative inline-block">
                 <TypeTitle
                   text={WORK.heading}
@@ -1482,16 +1625,14 @@ export function Portfolio() {
               <p className="mt-2 sm:mt-3 text-base sm:text-lg font-light leading-snug" style={{ color: MUTED }}>
                 {WORK.body}
               </p>
-              <div className="mt-6 sm:mt-7 flex justify-center items-center gap-3">
-                <PillButton onClick={() => setSelectedProject(PROJECTS[0])}>
-                  {WORK.cta} <ArrowUpRight size={16} />
-                </PillButton>
-              </div>
-            </Reveal>
+            </ProjectEntrance>
 
             {/* Detailed project list */}
             <div className="mt-20 md:mt-28 space-y-16 md:space-y-24">
               {PROJECTS.map((project, index) => {
+                if (project.featured) {
+                  return <FeaturedProject key={project.title} project={project} />;
+                }
                 const flipped = index % 2 === 1;
                 return (
                   <div
@@ -1501,7 +1642,7 @@ export function Portfolio() {
                       flipped ? "lg:[&>*:first-child]:order-2" : ""
                     }`}
                   >
-                    <Reveal x={flipped ? 80 : -80} y={0} className="min-w-0">
+                    <ProjectEntrance direction={flipped ? "right" : "left"} className="min-w-0">
                       <div className="relative aspect-[16/9] w-full rounded-[8px] sm:rounded-2xl overflow-hidden border border-white/10 bg-[#111]">
                         <img
                           src={project.thumbnail}
@@ -1511,8 +1652,8 @@ export function Portfolio() {
                           loading="lazy"
                         />
                       </div>
-                    </Reveal>
-                    <Reveal x={flipped ? -80 : 80} y={0} delay={0.08} className="min-w-0">
+                    </ProjectEntrance>
+                    <ProjectEntrance direction={flipped ? "left" : "right"} delay={0.08} className="min-w-0">
                       <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white tracking-tight leading-snug">
                         <span className="font-bold tabular-nums inline-block mr-2.5 sm:mr-3.5" style={{ color: ORANGE }}>
                           {String(index + 1).padStart(2, "0")}
@@ -1522,6 +1663,7 @@ export function Portfolio() {
                       <p className="mt-4 text-base sm:text-lg font-light leading-relaxed text-balance" style={{ color: MUTED }}>
                         {project.desc}
                       </p>
+                      <ProjectHighlights project={project} />
                       <div className="mt-4 flex flex-wrap items-center gap-2.5 sm:gap-3">
                         {project.tags.map((tag) => {
                           const logo = techLogo(tag);
@@ -1529,7 +1671,7 @@ export function Portfolio() {
                             <span
                               key={tag}
                               title={tag}
-                              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5"
+                              className="project-pill inline-flex items-center gap-2 px-3 py-1.5"
                             >
                               {logo ? (
                                 <img
@@ -1545,7 +1687,7 @@ export function Portfolio() {
                             </span>
                           );
                         })}
-                        {project.title.toLowerCase().includes("brown") && (
+                        {project.showProviders && (
                           <button
                             type="button"
                             onClick={() => setProvidersModalOpen(true)}
@@ -1557,13 +1699,13 @@ export function Portfolio() {
                               Multiple AI Providers
                             </span>
                             <span className="inline-flex items-center justify-center rounded-full bg-white text-[#FF5A1F] text-[10px] font-bold px-1.5 py-0.5 leading-none shadow-sm">
-                              10+
+                              {BROWN_AI_PROVIDERS.length}
                             </span>
                           </button>
                         )}
                       </div>
                       <ProjectActions project={project} />
-                    </Reveal>
+                    </ProjectEntrance>
                   </div>
                 );
               })}
@@ -1898,15 +2040,15 @@ export function Portfolio() {
             onClick={() => setSelectedProject(null)}
           >
             <motion.div
-              className="w-full max-w-2xl rounded-t-xl sm:rounded-2xl border border-white/10 overflow-hidden"
+              className="w-full max-w-2xl max-h-[90dvh] overflow-y-auto rounded-t-xl sm:rounded-2xl border border-white/10"
               style={{ background: BG_ELEV }}
               initial={{ y: 40, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 24, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="aspect-video bg-black/40">
-                <img src={selectedProject.thumbnail} alt="" className="w-full h-full object-cover" />
+              <div className="brown-compact-visual aspect-video bg-black/40">
+                <ProjectVisual project={selectedProject} />
               </div>
               <div className="p-6 sm:p-8">
                 <div className="flex items-start justify-between gap-4">
@@ -1915,10 +2057,11 @@ export function Portfolio() {
                     <X size={20} />
                   </button>
                 </div>
-                <p className="mt-3 text-base font-light leading-relaxed" style={{ color: MUTED }}>
+                {!selectedProject.featured && <p className="mt-3 text-base font-light leading-relaxed" style={{ color: MUTED }}>
                   {selectedProject.desc}
-                </p>
-                {selectedProject.title.toLowerCase().includes("brown") && (
+                </p>}
+                <ProjectHighlights project={selectedProject} />
+                {selectedProject.showProviders && !selectedProject.featured && (
                   <div className="mt-4">
                     <button
                       type="button"
@@ -1930,7 +2073,7 @@ export function Portfolio() {
                         Multiple AI Providers
                       </span>
                       <span className="inline-flex items-center justify-center rounded-full bg-white text-[#FF5A1F] text-[10px] font-bold px-1.5 py-0.5 leading-none shadow-sm">
-                        10+ Supported
+                        {BROWN_AI_PROVIDERS.length} Supported
                       </span>
                     </button>
                   </div>
@@ -1968,7 +2111,7 @@ export function Portfolio() {
                     Brown AI Supported Providers
                   </h3>
                   <p className="mt-1 text-xs sm:text-sm font-light text-[#A0A0A0]">
-                    Run 100% offline local inference or connect high-throughput cloud models seamlessly.
+                    Run downloaded local models offline or connect optional cloud providers with your own API keys. Endpoint compatibility depends on the model and runtime.
                   </p>
                 </div>
                 <button
@@ -2342,18 +2485,24 @@ export function Portfolio() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.98, y: 8 }}
               transition={{ duration: 0.35, ease: easeOut }}
-              className="relative w-full max-w-4xl"
+              className={bentoOpen.imageOnly ? "relative max-w-4xl max-h-[80vh]" : "relative w-full max-w-4xl"}
+              role="dialog"
+              aria-modal="true"
+              aria-label={bentoOpen.title}
               onClick={(e) => e.stopPropagation()}
             >
               <button
                 type="button"
                 onClick={() => setBentoOpen(null)}
-                className="absolute -top-10 right-0 sm:top-3 sm:right-3 z-10 p-2 rounded-full bg-black/50 text-white hover:bg-black/70"
+                className="project-pill absolute -top-12 right-0 z-10 inline-flex h-10 w-10 items-center justify-center text-white transition-colors"
                 aria-label="Close"
+                autoFocus
               >
                 <X size={18} />
               </button>
-              <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#111]">
+              {bentoOpen.imageOnly ? (
+                <img src={bentoOpen.src} alt={bentoOpen.title} className="block max-w-full max-h-[80vh] w-auto mx-auto rounded-2xl sm:rounded-3xl object-contain" />
+              ) : <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#111]">
                 <img src={bentoOpen.src} alt={bentoOpen.title} className="w-full max-h-[75vh] object-contain bg-black" />
                 <div className="px-5 py-4 border-t border-white/10">
                   <p className="text-xs font-semibold tracking-[0.16em] uppercase" style={{ color: ORANGE }}>
@@ -2361,7 +2510,7 @@ export function Portfolio() {
                   </p>
                   <p className="mt-1 text-xl font-semibold text-white">{bentoOpen.title}</p>
                 </div>
-              </div>
+              </div>}
             </motion.div>
           </motion.div>
         )}

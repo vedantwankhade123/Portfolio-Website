@@ -33,7 +33,7 @@ export const ABOUT = {
   body:
     "Focused on [[Full Stack · AI · UI/UX]]. Based in [[Amravati, Maharashtra]], pursuing [[B.Tech CSE · 2023–2027]] at G.H. Raisoni University (CGPA 8.74), with depth in full-stack development, AI, and databases. Currently training through [[Sheryians Cohort 3.0]].",
   extras: [
-    "I ship real client and personal projects — from e-commerce platforms to autonomous hybrid AI agents for desktop and mobile (online + offline with Gemini and Ollama).",
+    "I ship real client and personal projects — from e-commerce platforms to Brown AI for Windows and Android, with on-device models, optional cloud AI, and local device pairing.",
   ],
   cta: "See my work",
 } as const;
@@ -114,15 +114,31 @@ export type Project = {
   gradient: string;
   video: string;
   thumbnail: string;
+  carouselThumbnail?: string;
   objectFit?: string;
   liveUrl: string;
   githubUrl: string;
+  downloads?: { label: string; url: string; platform: "windows" | "android" }[];
+  featured?: boolean;
+  mobileThumbnail?: string;
+  mobileGithubUrl?: string;
+  highlights?: string[];
+  showProviders?: boolean;
 };
 
 /** Official logos for project tech stacks */
 export const TECH_LOGOS: Record<string, { src: string; invert?: boolean }> = {
   Electron: {
     src: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/electron/electron-original.svg",
+  },
+  "React Native": {
+    src: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/react/react-original.svg",
+  },
+  Expo: {
+    src: "https://cdn.simpleicons.org/expo/FFFFFF",
+  },
+  Android: {
+    src: "https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/android/android-original.svg",
   },
   Ollama: {
     src: "https://cdn.simpleicons.org/ollama/FFFFFF",
@@ -209,7 +225,7 @@ export const BROWN_AI_PROVIDERS = [
   },
   {
     name: "vLLM",
-    role: "High-Throughput Serving",
+    role: "Compatible API Endpoint",
     src: "https://cdn.simpleicons.org/vllm/FFFFFF",
   },
   {
@@ -229,42 +245,51 @@ export const BROWN_AI_PROVIDERS = [
   },
   {
     name: "OpenAI",
-    role: "GPT-4o & Reasoning Models",
+    role: "Cloud Model Connector",
     src: "/images/tech/openai.svg",
   },
   {
     name: "Anthropic Claude",
-    role: "Claude 3.5 Sonnet & Haiku",
+    role: "Claude Cloud Connector",
     src: "https://cdn.simpleicons.org/anthropic/D97757",
   },
   {
     name: "DeepSeek",
-    role: "DeepSeek V3 & R1 Models",
+    role: "Cloud Model Connector",
     src: "https://cdn.simpleicons.org/deepseek/4D6BFE",
   },
   {
-    name: "Mistral AI",
-    role: "Mistral & Mixtral APIs",
-    src: "https://cdn.simpleicons.org/mistralai/FFFFFF",
+    name: "Groq",
+    role: "Cloud Model Connector",
+    src: "/images/tech/groq.svg",
   },
 ] as const;
 
 export const PROJECTS: Project[] = [
   {
-    title: "Brown AI – Autonomous Desktop Agent",
-    desc: "Autonomous, privacy-first local AI Agent framework for Windows. Features offline Ollama & Gemini integration, on-device Whisper STT & Kokoro TTS voice, MCP tools, and seamless desktop automation in a sleek glassmorphic interface.",
-    tags: ["Electron", "Python", "Gemini AI", "Node.js", "TypeScript", "PowerShell", "SQLite"],
+    title: "Brown AI",
+    desc: "A local AI workspace for Windows and Android. Automate tasks, search your files, and talk to AI — with on-device models, optional cloud AI, and Wi-Fi sync.",
+    tags: ["Electron", "React Native", "TypeScript", "Python", "Ollama"],
+    featured: true,
     icon: "🤖",
     gradient: "from-[#FF5A1F] to-[#121212]",
     video: "",
-    thumbnail: "/images/projects/brownai.webp",
-    objectFit: "cover",
+    thumbnail: "/images/projects/brown-desktop.webp",
+    carouselThumbnail: "/images/projects/brown-carousel.png",
+    mobileThumbnail: "/images/projects/brown-mobile.webp",
+    objectFit: "contain",
     liveUrl: "https://usebrown.online",
     githubUrl: "https://github.com/vedantwankhade123/Brown",
+    mobileGithubUrl: "https://github.com/vedantwankhade123/Brown-Mobile",
+    showProviders: true,
+    downloads: [
+      { label: "Windows", platform: "windows", url: "https://github.com/vedantwankhade123/Brown/releases/latest/download/Brown-AI-Setup.exe" },
+      { label: "Android APK", platform: "android", url: "https://github.com/vedantwankhade123/Brown-Mobile/releases/latest/download/Brown-AI-Mobile.apk" },
+    ],
   },
   {
     title: "Ekdanta – E-commerce Website",
-    desc: "Client e-commerce site for listing products, checkout, and secure payments with essential storefront features.",
+    desc: "A client storefront with product browsing, checkout, and secure payments.",
     // From live deploy ekdanta-c4074.web.app (_next + Firebase Hosting)
     tags: ["Next.js", "React", "Firebase", "Tailwind"],
     icon: "🛍️",
@@ -276,21 +301,8 @@ export const PROJECTS: Project[] = [
     githubUrl: "private",
   },
   {
-    title: "HealBook – AI Doctor Booking & Chatbot",
-    desc: "An AI-powered appointment booking system with a symptom-identification chatbot powered by Gemini AI and text-to-speech.",
-    // From github.com/vedantwankhade123/healbook (client + server package.json)
-    tags: ["React", "TypeScript", "Vite", "Tailwind", "Firebase", "Node.js", "Gemini AI"],
-    icon: "🩺",
-    gradient: "from-[#FF5A1F] to-[#1a0a06]",
-    video: "",
-    thumbnail: "/images/projects/healbook.webp",
-    objectFit: "contain",
-    liveUrl: "not_live",
-    githubUrl: "https://github.com/vedantwankhade123/healbook",
-  },
-  {
     title: "Engineering Project Hub",
-    desc: "Marketplace for engineering projects — browse a catalog or request fully customized solutions end-to-end.",
+    desc: "An engineering project marketplace with custom build requests.",
     // From live deploy engineeringprojecthub.online (Vite React + Firebase + Leaflet)
     tags: ["React", "Vite", "Firebase", "Leaflet", "Tailwind"],
     icon: "✨",
@@ -303,7 +315,7 @@ export const PROJECTS: Project[] = [
   },
   {
     title: "NeuCV – Resume Builder",
-    desc: "Modern resume builder with templates and AI-assisted content improvements.",
+    desc: "A resume builder with ready-to-use templates and AI writing assistance.",
     // Repo not public — stack from project description / prior portfolio data
     tags: ["Vue.js", "Python", "FastAPI"],
     icon: "🌤️",
@@ -364,7 +376,16 @@ export const ACHIEVEMENTS = {
 
 export const CERTIFICATIONS = {
   heading: "Certifications",
-  body: "Verified credentials that back the stack — JavaScript and Python.",
+  body: "JavaScript & Python certified. Currently pursuing Sheryians Cohort 3.0.",
+  activeCourse: {
+    issuer: "Sheryians Coding School",
+    title: "3.0 Job Ready AI Powered Cohort",
+    status: "In progress",
+    description: "Currently pursuing live, project-based training in full-stack development, AI engineering, DevOps, and system design.",
+    src: "/images/certificates/sheryians-cohort-in-progress.svg",
+    url: "https://sheryians.com/courses/3-0-job-ready-ai-powered-cohort",
+    topics: ["Full Stack", "AI Engineering", "DevOps", "System Design"],
+  },
   items: [
     {
       id: "js",
@@ -387,6 +408,7 @@ export const CERTIFICATIONS = {
 
 export type AchievementBentoImage = {
   kind: "image";
+  imageOnly?: boolean;
   src: string;
   title: string;
   year: string;
@@ -438,7 +460,7 @@ export const ACHIEVEMENT_IMAGES = ACHIEVEMENTS.items.map((item) => ({
 
 export const EDUCATION = {
   heading: "Academic path",
-  body: "A consistent record across school and engineering — building toward full-stack and AI craft.",
+  body: "From school to engineering, focused on full-stack development and AI.",
   cards: [
     {
       id: "ssc",
